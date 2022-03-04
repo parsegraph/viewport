@@ -1,6 +1,6 @@
-TODO-PACKAGE-NAME*.zip
-TODO-PACKAGE-NAME*.tgz
-parsegraph-TODO-PACKAGE-NAME/
+viewport*.zip
+viewport*.tgz
+parsegraph-viewport/
 
 # Logs
 logs
