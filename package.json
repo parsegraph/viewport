@@ -48,6 +48,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
-    "parsegraph-graphpainter": "^2.1.16"
+    "parsegraph-graphpainter": "^2.4.0",
+    "parsegraph-method": "^1.4.22"
   }
 }
