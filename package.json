@@ -50,5 +50,10 @@
   "dependencies": {
     "parsegraph-graphpainter": "^2.4.0",
     "parsegraph-method": "^1.4.22"
+  },
+  "peerDependencies": {
+    "parsegraph-checkglerror": "^1.5.3",
+    "parsegraph-log": "^1.7.3",
+    "webgl-debug": "^2.0.1"
   }
 }
