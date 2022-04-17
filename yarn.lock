@@ -5024,7 +5024,7 @@ parsegraph-artist@^3.3.3, parsegraph-artist@^3.4.0:
     parsegraph-timing "^1.4.16"
     parsegraph-timingbelt "^1.7.11"
 
-parsegraph-block@^4.3.0:
+parsegraph-block@^4.3.0, parsegraph-block@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/parsegraph-block/-/parsegraph-block-4.3.1.tgz#24f74435144f9c18da35f9080baecbd430b5575a"
   integrity sha512-ALkvvKXm5xCh+8jtqEqVjpfQpeclNrX3PpVeQJKhABtWAObon0cuznPFg3ArlFnDO7HC6WnFW4hRY2q63SziMA==

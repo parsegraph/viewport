@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "parsegraph-artist": "^3.4.0",
+    "parsegraph-block": "^4.3.1",
     "parsegraph-camera": "^1.4.11",
     "parsegraph-color": "^1.4.7",
     "parsegraph-direction": "^2.1.0",
@@ -57,6 +58,7 @@
     "parsegraph-matrix": "^1.4.11",
     "parsegraph-method": "^1.4.22",
     "parsegraph-projector": "^1.10.0",
+    "parsegraph-scene": "^2.2.1",
     "parsegraph-showincamera": "^1.7.0",
     "parsegraph-timing": "^1.4.16",
     "parsegraph-timingbelt": "^1.7.11"
