@@ -2,13 +2,21 @@ import Viewport from ".";
 
 import Color from "parsegraph-color";
 
-import { WorldRenderable, NodeValues, Artist, ProjectedNode } from "parsegraph-graphpainter";
+import {
+  WorldTransform,
+  WorldRenderable,
+} from 'parsegraph-scene';
+
+import Artist, {
+  NodeValues,
+  PaintedNode,
+} from "parsegraph-artist";
 
 import TimingBelt from "parsegraph-timingbelt";
 import { Projection, BasicProjector, Projector } from "parsegraph-projector";
 import Direction, { DirectionNode } from "parsegraph-direction";
 
-import Block from "./Block";
+import Block from "parsegraph-block";
 import { Renderable } from "parsegraph-timingbelt";
 import Method from "parsegraph-method";
 
@@ -109,13 +117,9 @@ class Scene implements WorldRenderable {
     return false;
   }
 
-  unmount() {
+  unmount() {}
 
-  }
-
-  setOnScheduleUpdate() {
-
-  }
+  setOnScheduleUpdate() {}
 }
 
 class TestArtist implements Artist<Block, Scene> {
@@ -151,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // const freezer = new Freezer();
   // root.value().getCache().freeze(freezer);
 
-  let n: ProjectedNode = root;
+  let n: PaintedNode = root;
   for (let i = 0; i < 10; ++i) {
     const child = makeBlock(
       new Color(1 - i / 10, 0, 0),

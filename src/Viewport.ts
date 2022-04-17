@@ -1,11 +1,11 @@
 import log, { logc } from "parsegraph-log";
 import Method from "parsegraph-method";
 
-import {PaintedNode} from "parsegraph-artist";
+import { PaintedNode } from "parsegraph-artist";
 import { makeInverse3x3, matrixTransform2D } from "parsegraph-matrix";
 import Camera from "parsegraph-camera";
 
-import {GraphPainter} from "parsegraph-graphpainter";
+import { GraphPainter } from "parsegraph-graphpainter";
 
 import { Projector, Projected } from "parsegraph-projector";
 import Input from "parsegraph-input";
