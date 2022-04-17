@@ -59,8 +59,10 @@ export default class Viewport implements Projected {
       this._inputs.set(
         projector,
         new Input(
-          projector.container(),
-          projector.container(),
+          projector.glProvider().hasGL() ?
+            projector.glProvider().container() :
+            projector.overlayCanvas(),
+          projector.getDOMContainer(),
           (eventType: string, inputData?: any) => {
             if (this.handleEvent(eventType, inputData)) {
               this.scheduleRepaint();
