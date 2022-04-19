@@ -1,6 +1,7 @@
 import { TimeoutTimer } from "parsegraph-timing";
 import fuzzyEquals from "parsegraph-fuzzyequals";
-import { Keystroke, CLICK_DELAY_MILLIS, INTERVAL } from "parsegraph-window";
+import { INTERVAL } from 'parsegraph-timingbelt';
+import { Keystroke, CLICK_DELAY_MILLIS } from "parsegraph-input";
 import {
   matrixTransform2D,
   makeInverse3x3,
@@ -10,10 +11,10 @@ import { Direction, Alignment } from "parsegraph-direction";
 import Color from "parsegraph-color";
 import BlockPainter from "parsegraph-blockpainter";
 import AnimatedSpotlight from "parsegraph-animatedspotlight";
-import Viewport from "../viewport/Viewport";
+import Viewport from "./Viewport";
 import Method from "parsegraph-method";
 import { logc } from "parsegraph-log";
-import WindowNode from "../windownode/WindowNode";
+import {PaintedNode} from 'parsegraph-artist';
 
 export const TOUCH_SENSITIVITY = 1;
 export const MOUSE_SENSITIVITY = 1;
@@ -94,21 +95,21 @@ export default class Input {
   _caretPainter: BlockPainter;
   _caretPos: number[];
   _caretColor: Color;
-  _focusedNode: WindowNode;
+  _focusedNode: PaintedNode;
   _focusedLabel: boolean;
   _clicksDetected: number;
   _spotlight: AnimatedSpotlight;
   _mouseVersion: number;
   keydowns: { [id: string]: Date };
   _zoomTouchDistance: number;
-  _selectedSlider: WindowNode;
+  _selectedSlider: PaintedNode;
   listener: Method;
   _attachedMouseListener: Function;
   _horizontalJerk: number;
   _verticalJerk: number;
   _horizontalImpulse: number;
   _verticalImpulse: number;
-  _clickedNode: WindowNode;
+  _clickedNode: PaintedNode;
 
   constructor(viewport: Viewport) {
     this._viewport = viewport;
@@ -234,7 +235,7 @@ export default class Input {
           ? this._focusedNode._extended.prevTabNode
           : this._focusedNode._extended.nextTabNode;
         if (toNode) {
-          this.setFocusedNode(toNode as Node<DefaultNodeType>);
+          this.setFocusedNode(toNode as PaintedNode);
           return true;
         }
         break;
