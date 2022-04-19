@@ -50,6 +50,14 @@ export default class Viewport implements Projected {
     return this._root;
   }
 
+  setRoot(root: PaintedNode) {
+    if(this._root === root) {
+      return;
+    }
+    this._root = root;
+    this.scheduleUpdate();
+  }
+
   tick(): boolean {
     return false;
   }
