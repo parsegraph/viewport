@@ -5285,7 +5285,7 @@ parsegraph-projector@^1.10.0:
     parsegraph-timing "^1.4.16"
     parsegraph-timingbelt "^1.7.11"
 
-parsegraph-projector@^1.8.17:
+parsegraph-projector@^1.13.0, parsegraph-projector@^1.8.17:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/parsegraph-projector/-/parsegraph-projector-1.13.0.tgz#29e6a18258361468084ddb84f0ce5407e30b53d8"
   integrity sha512-0q8tNuFYvSbNn6FTqRAcBJz3LRUttP7uOZRzrJ7sCgW2ZeU8a/mwiouTmiANeJSqWPf39c0FDdAu3IkkgBSuNw==

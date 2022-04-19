@@ -63,7 +63,7 @@
     "parsegraph-lerp": "^1.5.9",
     "parsegraph-matrix": "^1.4.11",
     "parsegraph-method": "^1.4.22",
-    "parsegraph-projector": "^1.10.0",
+    "parsegraph-projector": "^1.13.0",
     "parsegraph-scene": "^2.2.1",
     "parsegraph-showincamera": "^1.7.0",
     "parsegraph-smoothstep": "^1.4.4",
