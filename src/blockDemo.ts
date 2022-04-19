@@ -1,7 +1,7 @@
 import Direction from "parsegraph-direction";
 import { Pizza } from "parsegraph-artist";
 import { WorldTransform } from "parsegraph-scene";
-import Block, {DefaultBlockPalette} from "parsegraph-block";
+import Block, { DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
 import { BasicProjector } from "parsegraph-projector";
 import TimingBelt from "parsegraph-timingbelt";

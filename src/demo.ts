@@ -4,12 +4,12 @@ import TimingBelt from "parsegraph-timingbelt";
 import { Projection, BasicProjector } from "parsegraph-projector";
 import Direction from "parsegraph-direction";
 
-import Block, { DefaultBlockPalette} from "parsegraph-block";
+import Block, { DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
 
 // import Freezer from "../freezer/Freezer";
 
-const buildGraph = ()=>{
+const buildGraph = () => {
   const car = new DirectionCaret<Block>("u", new DefaultBlockPalette());
 
   const root = car.root();
