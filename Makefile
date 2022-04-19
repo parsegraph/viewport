@@ -3,7 +3,10 @@ DIST_NAME = viewport
 SCRIPT_FILES = \
 	src/index.ts \
 	src/Viewport.ts \
-	src/blockDemo.ts \
+	src/viewport/Input.ts \
+	src/viewport/BurgerMenu.ts \
+	src/viewport/Viewport.ts \
+	src/viewport/CameraFilter.ts \
 	src/demo.ts \
 	test/test.ts
 
