@@ -2,7 +2,7 @@ import TexturePainter from "parsegraph-texturepainter";
 import { matrixMultiply3x3I, makeTranslation3x3 } from "parsegraph-matrix";
 import rainbackMenu from "./rainback-menu-icons.png";
 import Navport from "./Navport";
-import {Projector} from 'parsegraph-projector';
+import { Projector } from "parsegraph-projector";
 
 const MENU_ICON_TEXTURE_SIZE = 32;
 const MENU_ICON_SIZE = 32;
@@ -57,7 +57,7 @@ class BurgerMenuScene {
     this._projector = proj;
     this._menu = menu;
     this._iconImage = new Image(256, 32);
-    this._iconImage.onload = ()=>{
+    this._iconImage.onload = () => {
       this._iconReady = true;
       menu.scheduleRepaint();
     };
@@ -139,7 +139,7 @@ class BurgerMenuScene {
     }
     this._iconPainter.clear();
     this._iconPainter.setAlpha(0.5);
-    this.menu().eachIcon(bl=>{
+    this.menu().eachIcon((bl) => {
       bl.location = NaN;
     });
     this.drawIcon(MENU_ICON_MAIN, 0);
@@ -160,7 +160,6 @@ class BurgerMenuScene {
         this._textInput.remove();
       }
     }
-
   }
 
   render() {
@@ -169,7 +168,11 @@ class BurgerMenuScene {
     }
     if (this.menu().opened()) {
       this._textInput.style.left = this.projector().width() / 2 + "px";
-      this._textInput.style.bottom = this.projector().height() - MENU_ICON_SIZE - 1.5 * MENU_ICON_PADDING + "px";
+      this._textInput.style.bottom =
+        this.projector().height() -
+        MENU_ICON_SIZE -
+        1.5 * MENU_ICON_PADDING +
+        "px";
     }
     const world = this.menu().viewport().camera().projectionMatrix();
     matrixMultiply3x3I(
@@ -211,7 +214,7 @@ export default class BurgerMenu {
     return this._menuHovered;
   }
 
-  eachIcon(cb:(bl:BurgerMenuLocation)=>void):void {
+  eachIcon(cb: (bl: BurgerMenuLocation) => void): void {
     this._iconLocations.forEach(cb);
   }
 
@@ -337,7 +340,7 @@ export default class BurgerMenu {
   }
 
   unmount() {
-    this._scenes.forEach(scene=>scene.dispose());
+    this._scenes.forEach((scene) => scene.dispose());
   }
 
   dispose() {

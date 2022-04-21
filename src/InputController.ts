@@ -2,17 +2,14 @@ import { TimeoutTimer } from "parsegraph-timing";
 import fuzzyEquals from "parsegraph-fuzzyequals";
 import { INTERVAL } from "parsegraph-timingbelt";
 import { Keystroke, CLICK_DELAY_MILLIS } from "parsegraph-input";
-import {
-  matrixTransform2D,
-  makeInverse3x3,
-} from "parsegraph-matrix";
+import { matrixTransform2D, makeInverse3x3 } from "parsegraph-matrix";
 import { Direction, Alignment } from "parsegraph-direction";
 import AnimatedSpotlight from "parsegraph-animatedspotlight";
 import Method from "parsegraph-method";
 import { logc } from "parsegraph-log";
 import { PaintedNode } from "parsegraph-artist";
 import Navport from "./Navport";
-import { Projector } from 'parsegraph-projector';
+import { Projector } from "parsegraph-projector";
 
 export const TOUCH_SENSITIVITY = 1;
 export const MOUSE_SENSITIVITY = 1;
@@ -221,7 +218,7 @@ export default class Input {
         this.clearImpulse();
         const toNode = event.shiftKey()
           ? this._focusedNode.value().interact().prevInteractive()
-          : this._focusedNode.value().interact().nextInteractive()
+          : this._focusedNode.value().interact().nextInteractive();
         if (toNode) {
           this.setFocusedNode(toNode as PaintedNode);
           return true;
@@ -254,9 +251,7 @@ export default class Input {
         return true;
       case ZOOM_IN_KEY:
         this.clearImpulse();
-        this._nav.setFocusScale(
-          (1 / 1.1) * this._nav.getFocusScale()
-        );
+        this._nav.setFocusScale((1 / 1.1) * this._nav.getFocusScale());
         this.scheduleRepaint();
         return true;
       case ZOOM_OUT_KEY:
@@ -274,10 +269,7 @@ export default class Input {
 
   focusKey(event: Keystroke) {
     const focused = this._focusedNode.value().interact();
-    if (
-      focused.hasKeyListener() &&
-      focused.key(event) !== false
-    ) {
+    if (focused.hasKeyListener() && focused.key(event) !== false) {
       this._focusedNode.layoutChanged();
       this.scheduleRepaint();
       return true;
@@ -716,8 +708,11 @@ export default class Input {
       // console.log("Couldn't commit layout in time");
       overClickable = 1;
     } else {
-      overClickable = this._nav.root().value().interact()
-        .mouseOver(mouseInWorld[0], mouseInWorld[1])
+      overClickable = this._nav
+        .root()
+        .value()
+        .interact()
+        .mouseOver(mouseInWorld[0], mouseInWorld[1]);
     }
     switch (overClickable) {
       case 2:
@@ -745,10 +740,10 @@ export default class Input {
     if (!this.world().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
       return null;
     }
-    const selectedNode = this.world().value().getLayout().nodeUnderCoords(
-      x,
-      y
-    ) as PaintedNode;
+    const selectedNode = this.world()
+      .value()
+      .getLayout()
+      .nodeUnderCoords(x, y) as PaintedNode;
     if (!selectedNode) {
       logc("Mouse clicks", "No node found under coords:", x, y);
       this.setFocusedNode(null);
@@ -1013,7 +1008,10 @@ export default class Input {
   }
 
   paint(proj: Projector) {
-    if (!this._focusedNode || this._focusedNode.value().getLayout().needsPosition()) {
+    if (
+      !this._focusedNode ||
+      this._focusedNode.value().getLayout().needsPosition()
+    ) {
       return;
     }
 

@@ -8,8 +8,8 @@ import { Projected, Projector } from "parsegraph-projector";
 import { PaintedNode } from "parsegraph-artist";
 import Method from "parsegraph-method";
 import { BasicGLProvider } from "parsegraph-compileprogram";
-import Color from 'parsegraph-color';
-import {GraphPainter} from "parsegraph-graphpainter";
+import Color from "parsegraph-color";
+import { GraphPainter } from "parsegraph-graphpainter";
 
 export const FOCUS_SCALE = 1;
 
