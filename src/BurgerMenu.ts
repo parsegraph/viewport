@@ -1,6 +1,5 @@
 import TexturePainter from "parsegraph-texturepainter";
 import { matrixMultiply3x3I, makeTranslation3x3 } from "parsegraph-matrix";
-import BlockPainter from "parsegraph-blockpainter";
 import rainbackMenu from "./rainback-menu-icons.png";
 import Navport from "./Navport";
 import {Projector} from 'parsegraph-projector';
