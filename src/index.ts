@@ -1,4 +1,3 @@
-import Viewport from "./Viewport";
 import Navport from "./Navport";
 import CameraFilter from "./CameraFilter";
 import BurgerMenu from "./BurgerMenu";
@@ -7,10 +6,9 @@ import InputController, {
   MOUSE_SENSITIVITY,
 } from "./InputController";
 
-export default Viewport;
+export default Navport;
 
 export {
-  Navport,
   CameraFilter,
   BurgerMenu,
   InputController,
