@@ -4,11 +4,12 @@ import InputController from "./InputController";
 import BurgerMenu from "./BurgerMenu";
 import CameraFilter from "./CameraFilter";
 import { showInCamera } from "parsegraph-showincamera";
-import { Projected, Projector } from 'parsegraph-projector';
-import Viewport from "./Viewport";
-import {PaintedNode} from "parsegraph-artist";
+import { Projected, Projector } from "parsegraph-projector";
+import { PaintedNode } from "parsegraph-artist";
 import Method from "parsegraph-method";
-import {BasicGLProvider} from 'parsegraph-compileprogram';
+import { BasicGLProvider } from "parsegraph-compileprogram";
+import Color from 'parsegraph-color';
+import {GraphPainter} from "parsegraph-graphpainter";
 
 export const FOCUS_SCALE = 1;
 
@@ -35,14 +36,12 @@ abstract class SplittingViewportDisplayMode implements ViewportDisplayMode {
 
 export class FullscreenViewportDisplayMode extends SplittingViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
-    const cam = nav.viewport().camera();
+    const cam = nav.camera();
     let needsUpdate = false;
     proj.glProvider().container().style.width = "100%";
     proj.glProvider().container().style.height = "100%";
     if (nav._nodeShown) {
-      if (
-        nav._cameraFilter.getRequiredScale() != nav.getRequiredScale()
-      ) {
+      if (nav._cameraFilter.getRequiredScale() != nav.getRequiredScale()) {
         nav._cameraFilter.restart();
       } else if (
         !cam.containsAll(
@@ -59,9 +58,9 @@ export class FullscreenViewportDisplayMode extends SplittingViewportDisplayMode 
         needsUpdate = true;
       }
     } else {
-      const size = nav.viewport().root().value().getLayout().extentSize();
+      const size = nav.root().value().getLayout().extentSize();
       if (size.width() > 0 && size.height() > 0) {
-        showInCamera(nav.viewport().root(), cam, false);
+        showInCamera(nav.root(), cam, false);
       }
     }
 
@@ -83,14 +82,17 @@ abstract class MenulessViewportDisplayMode implements ViewportDisplayMode {
 
 export class SingleScreenViewportDisplayMode extends MenulessViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
-    const viewport = nav.viewport();
+    const viewport = nav;
     const cam = viewport.camera();
     const size = viewport.root().value().getLayout().extentSize();
     proj.glProvider().container().style.display = "inline-block";
     let needsUpdate = false;
     if (size.width() > 0 && size.height() > 0) {
       if (cam.setSize(size.width(), size.height())) {
-        (proj.glProvider() as BasicGLProvider).setExplicitSize(size.width(), size.height());
+        (proj.glProvider() as BasicGLProvider).setExplicitSize(
+          size.width(),
+          size.height()
+        );
         needsUpdate = true;
       }
       showInCamera(viewport.root(), cam, false);
@@ -113,7 +115,7 @@ export class FixedWidthViewportDisplayMode extends SplittingViewportDisplayMode 
   }
 
   render(proj: Projector, nav: Navport) {
-    const viewport = nav.viewport();
+    const viewport = nav;
     const cam = viewport.camera();
     const root = viewport.root();
     const size = root.value().getLayout().extentSize();
@@ -124,7 +126,10 @@ export class FixedWidthViewportDisplayMode extends SplittingViewportDisplayMode 
     let needsUpdate = false;
     if (size.width() > 0 && size.height() > 0) {
       if (cam.setSize(this._w, this._h)) {
-        (proj.glProvider() as BasicGLProvider).setExplicitSize(this._w, this._h);
+        (proj.glProvider() as BasicGLProvider).setExplicitSize(
+          this._w,
+          this._h
+        );
         needsUpdate = true;
       }
       showInCamera(root, cam, false);
@@ -138,7 +143,7 @@ export class FixedWidthViewportDisplayMode extends SplittingViewportDisplayMode 
 
 export class FitInWindowViewportDisplayMode extends SplittingViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
-    const viewport = nav.viewport();
+    const viewport = nav;
     const cam = viewport.camera();
     const root = viewport.root();
     const size = root.value().getLayout().extentSize();
@@ -190,7 +195,8 @@ export class FitInWindowViewportDisplayMode extends SplittingViewportDisplayMode
  * adjusted by some constant.
  */
 export default class Navport implements Projected {
-  _viewport: Viewport;
+  _root: PaintedNode;
+  _painter: GraphPainter;
   _camera: Camera;
   _cameraFilter: CameraFilter;
   _carousel: Carousel;
@@ -199,10 +205,17 @@ export default class Navport implements Projected {
   _renderedMouse: number;
   _needsRender: boolean;
   _focusScale: number;
+  _focusedNode: PaintedNode;
+  _backgroundColor: Color;
   _nodeShown: PaintedNode;
   _needsRepaint: boolean;
   _displayMode: ViewportDisplayMode;
   _update: Method;
+  _cursor: string;
+
+  setCursor(cur: string): void {
+    this._cursor = cur;
+  }
 
   scheduleUpdate() {
     this._update.call();
@@ -212,15 +225,20 @@ export default class Navport implements Projected {
     this._update.set(func, obj);
   }
 
-  constructor(root: PaintedNode) {
+  constructor(
+    root: PaintedNode,
+    backgroundColor: Color = new Color(0, 0, 0, 1)
+  ) {
     // Construct the graph.
     this._update = new Method();
-    this._viewport = new Viewport(root);
+    this._backgroundColor = backgroundColor;
+    this._root = root;
+    this._painter = new GraphPainter(root, this._camera);
     this._displayMode = new FullscreenViewportDisplayMode();
     this._camera = new Camera();
     this._cameraFilter = new CameraFilter(this);
     this._input = new InputController(this);
-    this._carousel = new Carousel(this);
+    this._carousel = new Carousel(this.camera());
     this._carousel.setOnScheduleRepaint(this.scheduleRepaint, this);
 
     this._menu = new BurgerMenu(this);
@@ -230,6 +248,14 @@ export default class Navport implements Projected {
     this._needsRender = true;
 
     this._focusScale = FOCUS_SCALE;
+  }
+
+  width() {
+    return this.camera().width();
+  }
+
+  height() {
+    return this.camera().height();
   }
 
   setDisplayMode(displayMode: ViewportDisplayMode) {
@@ -255,7 +281,7 @@ export default class Navport implements Projected {
     return this._displayMode;
   }
 
-  handleEvent(eventType: string, eventData: any): boolean {
+  handleEvent(eventType: string, eventData: any, proj: Projector): boolean {
     // console.log(eventType, eventData);
     if (eventType === "blur") {
       this._menu.closeMenu();
@@ -265,7 +291,7 @@ export default class Navport implements Projected {
       return this._input.onWheel(eventData);
     }
     if (eventType === "touchmove") {
-      return this._input.onTouchmove(eventData);
+      return this._input.onTouchmove(eventData, proj);
     }
     if (eventType === "touchzoom") {
       return this._input.onTouchzoom(eventData);
@@ -281,7 +307,7 @@ export default class Navport implements Projected {
       return this._input.onMousedown(eventData);
     }
     if (eventType === "mousemove") {
-      return this._input.onMousemove(eventData);
+      return this._input.onMousemove(eventData, proj);
     }
     if (eventType === "mouseup") {
       return this._input.onMouseup(eventData);
@@ -317,12 +343,8 @@ export default class Navport implements Projected {
     return this._menu;
   }
 
-  viewport() {
-    return this._viewport;
-  }
-
   camera() {
-    return this.viewport().camera();
+    return this._camera;
   }
 
   input() {
@@ -349,10 +371,8 @@ export default class Navport implements Projected {
   needsRepaint() {
     return (
       this._needsRepaint ||
-      this.viewport().needsRepaint() ||
       (this._carousel.isCarouselShown() && this._carousel.needsRepaint()) ||
-      this._input.updateRepeatedly() ||
-      this._menu.needsRepaint()
+      this._input.updateRepeatedly()
     );
   }
 
@@ -365,8 +385,20 @@ export default class Navport implements Projected {
     );
   }
 
+  root() {
+    return this._root;
+  }
+
+  setRoot(root: PaintedNode) {
+    if (this._root === root) {
+      return;
+    }
+    this._root = root;
+    this.scheduleUpdate();
+  }
+
   plot(node: PaintedNode) {
-    return this.viewport().setRoot(node);
+    return this.setRoot(node);
   }
 
   /*
@@ -384,10 +416,10 @@ export default class Navport implements Projected {
       return false;
     }
 
-    let needsUpdate = this.carousel().paint(this);
-    needsUpdate = this.viewport().paint(projector, timeout) || needsUpdate;
+    let needsUpdate = this.carousel().paint(projector, timeout);
+    needsUpdate = this._painter.paint(projector, timeout) || needsUpdate;
 
-    this._input.paint();
+    this._input.paint(projector);
     // this._piano.paint();
     if (needsUpdate) {
       this.scheduleRepaint();
@@ -413,6 +445,15 @@ export default class Navport implements Projected {
     this.scheduleRender();
   }
 
+  backgroundColor(): Color {
+    return this._backgroundColor;
+  }
+
+  setBackgroundColor(color: Color) {
+    this._backgroundColor = color;
+    this.scheduleRender();
+  }
+
   setFocusScale(scale: number) {
     // console.log("Focus scale is changing: " + scale);
     this._focusScale = scale;
@@ -434,38 +475,62 @@ export default class Navport implements Projected {
     return this._cameraFilter;
   }
 
+  private renderBackground(projector: Projector) {
+    const hasGL = projector.glProvider()?.hasGL();
+    const container = projector.glProvider().container();
+    if (container.style.backgroundColor != this.backgroundColor().asRGBA()) {
+      container.style.backgroundColor = this.backgroundColor().asRGBA();
+    }
+    if (hasGL) {
+      // console.log("Rendering GL background");
+      const gl = projector.glProvider().gl();
+      const bg = this.backgroundColor();
+      gl.viewport(0, 0, projector.width(), projector.height());
+      gl.clearColor(bg.r(), bg.g(), bg.b(), bg.a());
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+    if (projector.hasOverlay()) {
+      // console.log("Rendering canvas background");
+      const overlay = projector.overlay();
+      overlay.textBaseline = "top";
+      overlay.fillStyle = this.backgroundColor().asRGBA();
+      overlay.clearRect(0, 0, projector.width(), projector.height());
+    }
+    if (projector.hasDOMContainer()) {
+      // console.log("Rendering DOM background");
+    }
+  }
+
   render(projector: Projector): boolean {
-    //width: number, height: number, avoidIfPossible: boolean): boolean {
+    // width: number, height: number, avoidIfPossible: boolean): boolean {
     const gl = projector.glProvider().gl();
     if (gl.isContextLost()) {
       return false;
     }
-    const cam = this.camera();
 
     let needsUpdate = this._displayMode.render(projector, this);
 
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    this.renderBackground(projector);
     const overlay = projector.overlay();
     overlay.textBaseline = "top";
 
-    needsUpdate = this.viewport().render(projector) || needsUpdate;
+    needsUpdate = this._painter.render(projector) || needsUpdate;
     if (needsUpdate) {
-      //logc("World was rendered dirty.");
+      // logc("World was rendered dirty.");
       this.scheduleRender();
     }
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    const world = cam.project();
-    if (this._input.render(world, cam.scale())) {
+    if (this._input.render(projector)) {
       this.scheduleRender();
     }
     // this._piano.render(world, cam.scale());
     if (!projector.isOffscreen()) {
-      this._carousel.render(world);
+      this._carousel.render(projector);
       if (this._displayMode.showMenu(projector, this)) {
         this._menu.showSplit(this._displayMode.allowSplit(projector, this));
-        this._menu.paint();
-        this._menu.render();
+        this._menu.paint(projector);
+        this._menu.render(projector);
       }
     }
     this._renderedMouse = this.input().mouseVersion();

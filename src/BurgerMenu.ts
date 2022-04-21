@@ -1,8 +1,9 @@
 import TexturePainter from "parsegraph-texturepainter";
 import { matrixMultiply3x3I, makeTranslation3x3 } from "parsegraph-matrix";
-import Viewport from "./Viewport";
 import BlockPainter from "parsegraph-blockpainter";
 import rainbackMenu from "./rainback-menu-icons.png";
+import Navport from "./Navport";
+import {Projector} from 'parsegraph-projector';
 
 const MENU_ICON_TEXTURE_SIZE = 32;
 const MENU_ICON_SIZE = 32;
@@ -44,33 +45,179 @@ class BurgerMenuLocation {
   location: number;
 }
 
-export default class BurgerMenu {
-  _viewport: Viewport;
-  _iconImage: HTMLImageElement;
-  _iconReady: boolean;
-  _needsRepaint: boolean;
-  _menuOpened: boolean;
-  _textInput: HTMLInputElement;
-  _blockPainter: BlockPainter;
+class BurgerMenuScene {
+  _menu: BurgerMenu;
+  _projector: Projector;
   _iconTexture: WebGLTexture;
   _iconPainter: TexturePainter;
-  _menuHovered: MenuIcon;
-  _iconLocations: BurgerMenuLocation[];
-  _showSplit: boolean;
+  _iconImage: HTMLImageElement;
+  _iconReady: boolean;
+  _textInput: HTMLInputElement;
 
-  constructor(viewport: Viewport) {
-    this._viewport = viewport;
-
+  constructor(menu: BurgerMenu, proj: Projector) {
+    this._projector = proj;
+    this._menu = menu;
     this._iconImage = new Image(256, 32);
-    const that = this;
-    this._iconImage.onload = function () {
-      that._iconReady = true;
-      that.scheduleRepaint();
+    this._iconImage.onload = ()=>{
+      this._iconReady = true;
+      menu.scheduleRepaint();
     };
     this._iconReady = false;
     this._iconImage.src = rainbackMenu;
     this._iconTexture = null;
     this._iconPainter = null;
+
+    this._textInput = document.createElement("input");
+    this._textInput.style.display = "none";
+    this._textInput.placeholder = "Search";
+  }
+
+  menu() {
+    return this._menu;
+  }
+
+  projector() {
+    return this._projector;
+  }
+
+  drawIcon(iconIndex: MenuIcon, x: number, y?: number): void {
+    if (arguments.length === 2) {
+      y = MENU_ICON_SIZE;
+    }
+    for (let i = 0; i < this.menu()._iconLocations.length; ++i) {
+      const iconLoc = this.menu()._iconLocations[i];
+      if (iconLoc.icon === iconIndex) {
+        iconLoc.location = x;
+        break;
+      }
+    }
+    x -= MENU_ICON_SIZE / 2;
+    if (this.menu().hovered() == iconIndex) {
+      this._iconPainter.setAlpha(0.9);
+    } else {
+      this._iconPainter.setAlpha(0.5);
+    }
+    this._iconPainter.drawTexture(
+      iconIndex * MENU_ICON_TEXTURE_SIZE,
+      0, // iconX, iconY
+      MENU_ICON_TEXTURE_SIZE,
+      MENU_ICON_TEXTURE_SIZE, // iconWidth, iconHeight
+      x,
+      y,
+      MENU_ICON_SIZE,
+      -MENU_ICON_SIZE, // width, height
+      1
+    );
+  }
+
+  paint() {
+    if (!this._iconReady) {
+      return;
+    }
+    const proj = this.projector();
+    const gl = proj.glProvider().gl();
+    if (!this._iconTexture) {
+      this._iconTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, this._iconTexture);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        this._iconImage
+      );
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+    if (!this._iconPainter) {
+      this._iconPainter = new TexturePainter(
+        proj.glProvider(),
+        this._iconTexture,
+        MENU_ICON_TEXTURE_SIZE * 8,
+        MENU_ICON_TEXTURE_SIZE
+      );
+    }
+    this._iconPainter.clear();
+    this._iconPainter.setAlpha(0.5);
+    this.menu().eachIcon(bl=>{
+      bl.location = NaN;
+    });
+    this.drawIcon(MENU_ICON_MAIN, 0);
+    if (this.menu().opened()) {
+      this._iconPainter.setAlpha(0.9);
+      const pad = MENU_ICON_PADDING;
+      this.drawIcon(MENU_ICON_REDO, -MENU_ICON_SIZE - pad);
+      this.drawIcon(MENU_ICON_UNDO, -2 * MENU_ICON_SIZE - pad);
+      this._textInput.style.display = "block";
+      this._textInput.style.position = "absolute";
+      this._textInput.style.width = MENU_ICON_SIZE * 6 + "px";
+      this._textInput.style.transform = "translateX(-50%)";
+      if (!proj.isOffscreen()) {
+        proj.getDOMContainer().appendChild(this._textInput);
+      }
+    } else {
+      if (!proj.isOffscreen()) {
+        this._textInput.remove();
+      }
+    }
+
+  }
+
+  render() {
+    if (!this._iconPainter) {
+      return;
+    }
+    if (this.menu().opened()) {
+      this._textInput.style.left = this.projector().width() / 2 + "px";
+      this._textInput.style.bottom = this.projector().height() - MENU_ICON_SIZE - 1.5 * MENU_ICON_PADDING + "px";
+    }
+    const world = this.menu().viewport().camera().projectionMatrix();
+    matrixMultiply3x3I(
+      world,
+      makeTranslation3x3(this.projector().width() / 2, 0),
+      world
+    );
+    const gl = this.projector().glProvider().gl();
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    this._iconPainter.render(world);
+  }
+
+  dispose() {
+    if (this._textInput) {
+      this._textInput.remove();
+    }
+    this._textInput = null;
+  }
+}
+
+export default class BurgerMenu {
+  _viewport: Navport;
+  _scenes: Map<Projector, BurgerMenuScene>;
+
+  _menuOpened: boolean;
+  _menuHovered: MenuIcon;
+  _iconLocations: BurgerMenuLocation[];
+  _showSplit: boolean;
+
+  viewport() {
+    return this._viewport;
+  }
+
+  opened() {
+    return this._menuOpened;
+  }
+
+  hovered() {
+    return this._menuHovered;
+  }
+
+  eachIcon(cb:(bl:BurgerMenuLocation)=>void):void {
+    this._iconLocations.forEach(cb);
+  }
+
+  constructor(viewport: Navport) {
+    this._viewport = viewport;
 
     this._menuOpened = false;
     this._menuHovered = null;
@@ -80,11 +227,6 @@ export default class BurgerMenu {
       bl.location = NaN;
       return bl;
     });
-    this._needsRepaint = true;
-
-    this._textInput = document.createElement("input");
-    this._textInput.style.display = "none";
-    this._textInput.placeholder = "Search";
   }
 
   showSplit(show?: boolean): boolean {
@@ -98,13 +240,11 @@ export default class BurgerMenu {
 
   scheduleRepaint() {
     // console.log("BurgerMenu is scheduling repaint");
-    this._needsRepaint = true;
     this._viewport.scheduleRepaint();
   }
 
   scheduleRender() {
     // console.log("BurgerMenu is scheduling render");
-    this._needsRepaint = true;
     this._viewport.scheduleRender();
   }
 
@@ -113,7 +253,7 @@ export default class BurgerMenu {
       return null;
     }
     if (!this._menuOpened) {
-      const center = this._viewport.width() / 2;
+      const center = this._viewport.camera().width() / 2;
       if (x < center - MENU_ICON_SIZE / 2 || x > center + MENU_ICON_SIZE / 2) {
         return null;
       }
@@ -121,7 +261,7 @@ export default class BurgerMenu {
     }
 
     // Menu is opened.
-    x -= this._viewport.width() / 2;
+    x -= this._viewport.camera().width() / 2;
     for (let i = 0; i < this._iconLocations.length; ++i) {
       const iconLocation = this._iconLocations[i];
       if (
@@ -144,7 +284,6 @@ export default class BurgerMenu {
     if (this._menuHovered == iconIndex) {
       return false;
     }
-    console.log("Repainting");
     this.scheduleRepaint();
     this._menuHovered = iconIndex;
     return true;
@@ -155,7 +294,7 @@ export default class BurgerMenu {
       return false;
     }
     if (!this._menuOpened) {
-      const center = this._viewport.width() / 2;
+      const center = this._viewport.camera().width() / 2;
       if (x < center - MENU_ICON_SIZE / 2 || x > center + MENU_ICON_SIZE / 2) {
         return false;
       }
@@ -165,7 +304,7 @@ export default class BurgerMenu {
     }
 
     // Menu is opened.
-    x -= this._viewport.width() / 2;
+    x -= this._viewport.camera().width() / 2;
     for (let i = 0; i < this._iconLocations.length; ++i) {
       const iconLocation = this._iconLocations[i];
       if (
@@ -193,63 +332,17 @@ export default class BurgerMenu {
         this._viewport.scheduleRender();
         return true;
       }
-      if (iconLocation.icon == MENU_ICON_HSPLIT) {
-        const newViewport = new Viewport(this._viewport.world());
-        newViewport.camera().copy(this._viewport.camera());
-        newViewport
-          .camera()
-          .setSize(
-            this._viewport.camera().width(),
-            this._viewport.camera().height()
-          );
-        (this.window() as GraphicsWindow).addHorizontal(
-          newViewport.component(),
-          this._viewport.component()
-        );
-        this.scheduleRepaint();
-        return true;
-      }
-      if (iconLocation.icon == MENU_ICON_VSPLIT) {
-        const newViewport = new Viewport(this._viewport.world());
-        newViewport.camera().copy(this._viewport.camera());
-        newViewport
-          .camera()
-          .setSize(
-            this._viewport.camera().width(),
-            this._viewport.camera().height()
-          );
-        (this.window() as GraphicsWindow).addVertical(
-          newViewport.component(),
-          this._viewport.component()
-        );
-        this.scheduleRepaint();
-        return true;
-      }
-      if (iconLocation.icon == MENU_ICON_CLOSE) {
-        console.log("Closing widget");
-        this.window().removeComponent(this._viewport.component());
-        this._viewport.dispose();
-        this.scheduleRepaint();
-        return true;
-      }
       throw new Error("Unhandled menu icon type: " + iconLocation.icon);
     }
     return false;
   }
 
   unmount() {
-    this._textInput.parentNode.removeChild(this._textInput);
+    this._scenes.forEach(scene=>scene.dispose());
   }
 
   dispose() {
     this.unmount();
-    this._textInput = null;
-  }
-
-  contextChanged(isLost: boolean) {
-    if (this._blockPainter) {
-      this._blockPainter.contextChanged(isLost);
-    }
   }
 
   closeMenu() {
@@ -260,136 +353,17 @@ export default class BurgerMenu {
     this.scheduleRepaint();
   }
 
-  drawIcon(iconIndex: MenuIcon, x: number, y?: number): void {
-    if (arguments.length === 2) {
-      y = MENU_ICON_SIZE;
+  paint(proj: Projector) {
+    if (!this._scenes.has(proj)) {
+      this._scenes.set(proj, new BurgerMenuScene(this, proj));
     }
-    for (let i = 0; i < this._iconLocations.length; ++i) {
-      const iconLoc = this._iconLocations[i];
-      if (iconLoc.icon === iconIndex) {
-        iconLoc.location = x;
-        break;
-      }
-    }
-    x -= MENU_ICON_SIZE / 2;
-    if (this._menuHovered == iconIndex) {
-      this._iconPainter.setAlpha(0.9);
-    } else {
-      this._iconPainter.setAlpha(0.5);
-    }
-    this._iconPainter.drawTexture(
-      iconIndex * MENU_ICON_TEXTURE_SIZE,
-      0, // iconX, iconY
-      MENU_ICON_TEXTURE_SIZE,
-      MENU_ICON_TEXTURE_SIZE, // iconWidth, iconHeight
-      x,
-      y,
-      MENU_ICON_SIZE,
-      -MENU_ICON_SIZE, // width, height
-      1
-    );
+    this._scenes.get(proj).paint();
   }
 
-  paint() {
-    if (!this._iconReady) {
-      return;
+  render(proj: Projector) {
+    if (!this._scenes.has(proj)) {
+      return true;
     }
-    const gl = this.gl();
-    if (!this._iconTexture) {
-      this._iconTexture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, this._iconTexture);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        this._iconImage
-      );
-      gl.generateMipmap(gl.TEXTURE_2D);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-    }
-    if (!this._iconPainter) {
-      this._iconPainter = new TexturePainter(
-        this.window(),
-        this._iconTexture,
-        MENU_ICON_TEXTURE_SIZE * 8,
-        MENU_ICON_TEXTURE_SIZE
-      );
-    }
-    this._iconPainter.clear();
-    this._iconPainter.setAlpha(0.5);
-    for (let i = 0; i < this._iconLocations.length; ++i) {
-      const bl = this._iconLocations[i];
-      bl.location = NaN;
-    }
-    this.drawIcon(MENU_ICON_MAIN, 0);
-    if (this._menuOpened) {
-      const viewportWidth = this._viewport.width();
-      this._iconPainter.setAlpha(0.9);
-      const pad = MENU_ICON_PADDING;
-      this.drawIcon(MENU_ICON_REDO, -MENU_ICON_SIZE - pad);
-      this.drawIcon(MENU_ICON_UNDO, -2 * MENU_ICON_SIZE - pad);
-      if (this.showSplit()) {
-        this.drawIcon(MENU_ICON_VSPLIT, pad + 2 * MENU_ICON_SIZE);
-        this.drawIcon(MENU_ICON_HSPLIT, pad + MENU_ICON_SIZE);
-        this.drawIcon(MENU_ICON_RESET_CAMERA, pad + 3 * MENU_ICON_SIZE);
-      }
-      if (this.window().numComponents() > 1) {
-        this.drawIcon(
-          MENU_ICON_CLOSE,
-          viewportWidth - viewportWidth / 2 - MENU_ICON_SIZE / 2
-        );
-      }
-      this._textInput.style.display = "block";
-      this._textInput.style.position = "absolute";
-      this._textInput.style.width = MENU_ICON_SIZE * 6 + "px";
-      this._textInput.style.transform = "translateX(-50%)";
-      if (!this.window().isOffscreen()) {
-        this._viewport.window().container().appendChild(this._textInput);
-      }
-    } else {
-      if (!this.window().isOffscreen()) {
-        this._textInput.remove();
-      }
-    }
-    this._needsRepaint = false;
-  }
-
-  render() {
-    if (!this._iconPainter) {
-      return;
-    }
-    if (this._menuOpened) {
-      this._textInput.style.left =
-        this._viewport.x() + this._viewport.width() / 2 + "px";
-      this._textInput.style.bottom =
-        this._viewport.y() +
-        this._viewport.height() -
-        MENU_ICON_SIZE -
-        1.5 * MENU_ICON_PADDING +
-        "px";
-    }
-    const world = this._viewport.camera().projectionMatrix();
-    matrixMultiply3x3I(
-      world,
-      makeTranslation3x3(this._viewport.width() / 2, 0),
-      world
-    );
-    const gl = this.gl();
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    this._iconPainter.render(world);
-  }
-
-  needsRepaint() {
-    return (this._iconReady && !this._iconTexture) || this._needsRepaint;
-  }
-
-  gl() {
-    return this._viewport.window().gl();
-  }
-
-  window() {
-    return this._viewport.window();
+    this._scenes.get(proj).render();
   }
 }

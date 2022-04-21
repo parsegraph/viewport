@@ -51,7 +51,7 @@ export default class Viewport implements Projected {
   }
 
   setRoot(root: PaintedNode) {
-    if(this._root === root) {
+    if (this._root === root) {
       return;
     }
     this._root = root;

@@ -1,20 +1,18 @@
 import { TimeoutTimer } from "parsegraph-timing";
 import fuzzyEquals from "parsegraph-fuzzyequals";
-import { INTERVAL } from 'parsegraph-timingbelt';
+import { INTERVAL } from "parsegraph-timingbelt";
 import { Keystroke, CLICK_DELAY_MILLIS } from "parsegraph-input";
 import {
   matrixTransform2D,
   makeInverse3x3,
-  Matrix3x3,
 } from "parsegraph-matrix";
 import { Direction, Alignment } from "parsegraph-direction";
-import Color from "parsegraph-color";
-import BlockPainter from "parsegraph-blockpainter";
 import AnimatedSpotlight from "parsegraph-animatedspotlight";
-import Viewport from "./Viewport";
 import Method from "parsegraph-method";
 import { logc } from "parsegraph-log";
-import {PaintedNode} from 'parsegraph-artist';
+import { PaintedNode } from "parsegraph-artist";
+import Navport from "./Navport";
+import { Projector } from 'parsegraph-projector';
 
 export const TOUCH_SENSITIVITY = 1;
 export const MOUSE_SENSITIVITY = 1;
@@ -73,7 +71,6 @@ const MOVE_TO_FORWARD_END_KEY = "End";
 const MOVE_TO_BACKWARD_END_KEY = "Home";
 const MOVE_TO_UPWARD_END_KEY = "PageUp";
 const MOVE_TO_DOWNWARD_END_KEY = "PageDown";
-const CARET_COLOR = new Color(0, 0, 0, 0.5);
 
 const MIN_CAMERA_SCALE = 0.00125;
 
@@ -88,13 +85,10 @@ const ZOOM_OUT_KEY = "ZoomOut";
 const minimum = 0.005;
 
 export default class Input {
-  _viewport: Viewport;
+  _nav: Navport;
   _mousedownTime: number;
   _mouseupTimeout: TimeoutTimer;
   _updateRepeatedly: boolean;
-  _caretPainter: BlockPainter;
-  _caretPos: number[];
-  _caretColor: Color;
   _focusedNode: PaintedNode;
   _focusedLabel: boolean;
   _clicksDetected: number;
@@ -111,8 +105,8 @@ export default class Input {
   _verticalImpulse: number;
   _clickedNode: PaintedNode;
 
-  constructor(viewport: Viewport) {
-    this._viewport = viewport;
+  constructor(nav: Navport) {
+    this._nav = nav;
     this._mousedownTime = null;
     this._mouseupTimeout = new TimeoutTimer();
     this._mouseupTimeout.setListener(this.afterMouseTimeout, this);
@@ -120,15 +114,12 @@ export default class Input {
 
     this._updateRepeatedly = false;
 
-    this._caretPainter = null;
-    this._caretPos = [];
-    this._caretColor = CARET_COLOR;
     this._focusedNode = null;
     this._focusedLabel = false;
 
     this._clicksDetected = 0;
 
-    this._spotlight = new AnimatedSpotlight(viewport);
+    this._spotlight = new AnimatedSpotlight();
 
     this._mouseVersion = 0;
 
@@ -153,13 +144,13 @@ export default class Input {
     }
     newVal = Math.max(0, Math.min(1, newVal));
     this._selectedSlider.setValue(newVal);
-    this._selectedSlider.layoutWasChanged();
+    this._selectedSlider.layoutChanged();
     this.scheduleRepaint();
   }
 
   setSelectedSlider() {
     if (this._selectedSlider) {
-      this._selectedSlider.layoutWasChanged();
+      this._selectedSlider.layoutChanged();
     }
     this._selectedSlider = null;
     this.scheduleRepaint();
@@ -178,7 +169,7 @@ export default class Input {
       case "Spacebar":
       case " ":
       case RESET_CAMERA_KEY:
-        this._selectedSlider.layoutWasChanged();
+        this._selectedSlider.layoutChanged();
         this._attachedMouseListener = null;
         this._selectedSlider = null;
         this.scheduleRepaint();
@@ -227,13 +218,10 @@ export default class Input {
     }
     switch (event.name()) {
       case "Tab":
-        if (!this._focusedNode._extended) {
-          return false;
-        }
         this.clearImpulse();
         const toNode = event.shiftKey()
-          ? this._focusedNode._extended.prevTabNode
-          : this._focusedNode._extended.nextTabNode;
+          ? this._focusedNode.value().interact().prevInteractive()
+          : this._focusedNode.value().interact().nextInteractive()
         if (toNode) {
           this.setFocusedNode(toNode as PaintedNode);
           return true;
@@ -241,8 +229,8 @@ export default class Input {
         break;
       case "Enter":
         this.clearImpulse();
-        if (this._focusedNode.hasKeyListener()) {
-          if (this._focusedNode.key(event, this.viewport())) {
+        if (this._focusedNode.value().interact().hasKeyListener()) {
+          if (this._focusedNode.value().interact().key(event)) {
             // Node handled it.
             return true;
           }
@@ -252,28 +240,28 @@ export default class Input {
           return this.moveFocus(Direction.INWARD);
         } else if (this._focusedNode.hasNode(Direction.OUTWARD)) {
           return this.moveFocus(Direction.OUTWARD);
-        } else if (this._viewport && this._focusedNode.hasClickListener()) {
+        } else if (this._focusedNode.value().interact().hasClickListener()) {
           this.scheduleRepaint();
-          return this._focusedNode.click(this._viewport);
+          return this._focusedNode.value().interact().click();
         } else {
           // Nothing handled it.
           break;
         }
       case CLICK_KEY:
         this.clearImpulse();
-        this._focusedNode.click(this._viewport);
+        this._focusedNode.value().interact().click();
         this.scheduleRepaint();
         return true;
       case ZOOM_IN_KEY:
         this.clearImpulse();
-        this._viewport.setFocusScale(
-          (1 / 1.1) * this._viewport.getFocusScale()
+        this._nav.setFocusScale(
+          (1 / 1.1) * this._nav.getFocusScale()
         );
         this.scheduleRepaint();
         return true;
       case ZOOM_OUT_KEY:
         this.clearImpulse();
-        this._viewport.setFocusScale(1.1 * this._viewport.getFocusScale());
+        this._nav.setFocusScale(1.1 * this._nav.getFocusScale());
         this.scheduleRepaint();
         return true;
       case RESET_CAMERA_KEY:
@@ -285,45 +273,27 @@ export default class Input {
   }
 
   focusKey(event: Keystroke) {
-    console.log("focusKey", event);
-    if (this._focusedNode._label && event.ctrlKey()) {
-      if (this._focusedNode._label.ctrlKey(event)) {
-        // console.log("LAYOUT CHANGED");
-        this._focusedNode.layoutWasChanged();
-        this.scheduleRepaint();
-        return true;
-      }
-    } else if (
-      this._focusedNode.hasKeyListener() &&
-      this._focusedNode.key(event, this.viewport()) !== false
+    const focused = this._focusedNode.value().interact();
+    if (
+      focused.hasKeyListener() &&
+      focused.key(event) !== false
     ) {
-      console.log("KEY PRESSED FOR LISTENER; LAYOUT CHANGED");
-      this._focusedNode.layoutWasChanged();
+      this._focusedNode.layoutChanged();
       this.scheduleRepaint();
       return true;
-    } else if (
-      this._focusedNode._label &&
-      this._focusedNode._label.editable() &&
-      this._focusedNode._label.key(event)
-    ) {
-      console.log("LABEL ACCEPTS KEY; LAYOUT CHANGED");
-      this._focusedNode.layoutWasChanged();
-      this.scheduleRepaint();
-      return true;
-    }
-    // Didn't move the caret, so interpret it as a key move
-    // on the node itself.
-    else if (this.focusNavKey(event)) {
+    } else if (this.focusNavKey(event)) {
+      // Didn't move the caret, so interpret it as a key move
+      // on the node itself.
       return true;
     } else {
-      this._focusedNode.click(this._viewport);
-      this._focusedNode.key(event, this._viewport);
-      this._focusedNode.click(this._viewport);
+      focused.click();
+      focused.key(event);
+      focused.click();
     }
   }
 
   carousel() {
-    return this.viewport().carousel();
+    return this.nav().carousel();
   }
 
   navKey(event: Keystroke) {
@@ -340,8 +310,8 @@ export default class Input {
         ) {
           return;
         }
-        if (this._viewport.world().nodeUnderCursor()) {
-          this._viewport.world().nodeUnderCursor().click(this._viewport);
+        if (this.nodeUnderCursor()) {
+          this.nodeUnderCursor().value().interact().click();
           this.scheduleRepaint();
         }
       // fall through
@@ -359,6 +329,10 @@ export default class Input {
         return true;
     }
     return false;
+  }
+
+  nodeUnderCursor() {
+    return this._focusedNode;
   }
 
   onKeydown(event: Keystroke) {
@@ -497,8 +471,8 @@ export default class Input {
   }
 
   scheduleRepaint() {
-    this.world().scheduleRepaint();
-    this._viewport.scheduleRepaint();
+    this.world().value().scheduleUpdate();
+    this.nav().scheduleRepaint();
   }
 
   addImpulse(x: number, y: number): void {
@@ -610,7 +584,7 @@ export default class Input {
     }
     const camera = this.camera();
     if (numSteps > 0 || camera.scale() >= MIN_CAMERA_SCALE) {
-      this._viewport.showInCamera(null);
+      this.nav().showInCamera(null);
       camera.zoomToPoint(Math.pow(1.1, numSteps), event.x, event.y);
     }
     this.mouseChanged();
@@ -618,7 +592,7 @@ export default class Input {
   }
 
   camera() {
-    return this._viewport.camera();
+    return this._nav.camera();
   }
 
   onTouchzoom(event: any) {
@@ -626,7 +600,7 @@ export default class Input {
     const dist = Math.sqrt(Math.pow(event.dx, 2) + Math.pow(event.dy, 2));
     const cam = this.camera();
     if (dist != 0 && this._zoomTouchDistance != 0) {
-      this._viewport.showInCamera(null);
+      this.nav().showInCamera(null);
       cam.zoomToPoint(dist / this._zoomTouchDistance, event.x, event.y);
       this._zoomTouchDistance = dist;
       this.mouseChanged();
@@ -636,11 +610,11 @@ export default class Input {
     return false;
   }
 
-  onTouchmove(event: any) {
+  onTouchmove(event: any, proj: Projector) {
     if (event.multiple) {
       return false;
     }
-    return this.onMousemove(event);
+    return this.onMousemove(event, proj);
   }
 
   mouseDragListener(x: number, y: number, dx: number, dy: number) {
@@ -675,14 +649,11 @@ export default class Input {
       return;
     }
 
-    if (this._caretPainter) {
-      this._caretPainter.initBuffer(1);
-    }
-    this._spotlight.clear();
+    this._spotlight.dispose();
 
     // console.log("Checking for node");
     this._mousedownTime = Date.now();
-    if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1], true)) {
+    if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
       // console.log("Node clicked.");
       // return true;
     }
@@ -696,8 +667,8 @@ export default class Input {
     return true;
   }
 
-  onMousemove(event: any) {
-    if (this._viewport.menu().onMousemove(event.x, event.y)) {
+  onMousemove(event: any, proj: Projector) {
+    if (this._nav.menu().onMousemove(event.x, event.y)) {
       return true;
     }
 
@@ -711,17 +682,18 @@ export default class Input {
       this.mouseChanged();
 
       const overClickable: number = this.carousel().mouseOverCarousel(
+        proj,
         mouseInWorld[0],
         mouseInWorld[1]
       );
       switch (overClickable) {
         case 2:
-          this._viewport.setCursor("pointer");
+          this._nav.setCursor("pointer");
           break;
         case 1:
           break;
         case 0:
-          this._viewport.setCursor("auto");
+          this._nav.setCursor("auto");
           break;
       }
 
@@ -740,23 +712,22 @@ export default class Input {
 
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
-    if (!this._viewport.world().commitLayout(INPUT_LAYOUT_TIME)) {
+    if (!this._nav.root().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
       // console.log("Couldn't commit layout in time");
       overClickable = 1;
     } else {
-      overClickable = this._viewport
-        .world()
-        .mouseOver(mouseInWorld[0], mouseInWorld[1], this._viewport);
+      overClickable = this._nav.root().value().interact()
+        .mouseOver(mouseInWorld[0], mouseInWorld[1])
     }
     switch (overClickable) {
       case 2:
-        this._viewport.setCursor("pointer");
+        this._nav.setCursor("pointer");
         break;
       case 1:
         // console.log("World not ready");
         break;
       case 0:
-        this._viewport.setCursor("auto");
+        this._nav.setCursor("auto");
         break;
     }
     this.mouseChanged();
@@ -770,50 +741,18 @@ export default class Input {
     return this.onMousedown(event);
   }
 
-  sliderListener(x: number) {
-    // if(isVerticalDirection(this._selectedSlider.parentDirection())) {
-    const nodeWidth = this._selectedSlider.absoluteSize().width();
-    let newVal;
-    if (x <= this._selectedSlider.absoluteX() - nodeWidth / 2) {
-      // To the left!
-      newVal = 0;
-    } else if (x >= this._selectedSlider.absoluteX() + nodeWidth / 2) {
-      // To the right!
-      newVal = 1;
-    } else {
-      // In between.
-      // console.log("x=" + x);
-      // console.log("selectedSlider.absoluteX()=" +
-      //   this._selectedSlider.absoluteX());
-      // console.log("PCT: " + (x - this._selectedSlider.absoluteX()));
-      // console.log("In between: " + ((nodeWidth/2 +
-      //   x - this._selectedSlider.absoluteX()) / nodeWidth));
-      newVal =
-        (nodeWidth / 2 + x - this._selectedSlider.absoluteX()) / nodeWidth;
-    }
-    this.adjustSelectedSlider(newVal, true);
-    this._selectedSlider.layoutWasChanged();
-    this.scheduleRepaint();
-    // }
-    if (this._selectedSlider.hasClickListener()) {
-      this._selectedSlider.click(this._viewport);
-    }
-    this.mouseChanged();
-
-    return true;
-  }
-
-  checkForNodeClick(x: number, y: number, onlySlider?: boolean) {
-    if (!this.world().commitLayout(INPUT_LAYOUT_TIME)) {
+  checkForNodeClick(x: number, y: number) {
+    if (!this.world().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
       return null;
     }
-    const selectedNode = this.world().nodeUnderCoords(x, y) as Node<
-      DefaultNodeType
-    >;
+    const selectedNode = this.world().value().getLayout().nodeUnderCoords(
+      x,
+      y
+    ) as PaintedNode;
     if (!selectedNode) {
       logc("Mouse clicks", "No node found under coords:", x, y);
       this.setFocusedNode(null);
-      this.viewport().showInCamera(null);
+      this.nav().showInCamera(null);
       return null;
     }
 
@@ -825,33 +764,11 @@ export default class Input {
       y
     );
 
-    // Check if the selected node was a slider.
-    if (selectedNode.type().type() == Type.SLIDER) {
-      if (!onlySlider && selectedNode === this._selectedSlider) {
-        // console.log(new Error("Removing slider listener"));
-        this._selectedSlider = null;
-        this._attachedMouseListener = null;
-        this.scheduleRepaint();
-        return null;
-      }
-      // console.log("Slider node!");
-      this.setFocusedNode(selectedNode);
-      this._selectedSlider = selectedNode;
-      this._attachedMouseListener = this.sliderListener;
-      this._attachedMouseListener(x, y, 0, 0);
-      this.scheduleRepaint();
-      return selectedNode;
-    }
-
-    // if(onlySlider) {
-    // return null;
-    // }
-
     // Check if the selected node has a click listener.
-    if (selectedNode.hasClickListener()) {
+    if (selectedNode.value().interact().hasClickListener()) {
       // console.log("Selected Node has click listener", selectedNode);
       if (this._focusedNode === selectedNode) {
-        const rv = selectedNode.click(this._viewport);
+        const rv = selectedNode.value().interact().click();
         if (rv !== false) {
           return selectedNode;
         }
@@ -861,27 +778,7 @@ export default class Input {
       }
     }
 
-    // Check if the label was clicked.
-    // console.log("Clicked");
-    const selectedLabel = selectedNode._label;
-    if (
-      selectedLabel &&
-      !Number.isNaN(selectedLabel._x) &&
-      selectedLabel.editable()
-    ) {
-      // console.log("Clicked label");
-      selectedLabel.click(
-        (x - selectedLabel._x) / selectedLabel._scale,
-        (y - selectedLabel._y) / selectedLabel._scale
-      );
-      this.scheduleRepaint();
-      // console.log(selectedLabel.caretLine());
-      // console.log(selectedLabel.caretPos());
-      this.setFocusedNode(selectedNode);
-      return selectedNode;
-    }
-    if (selectedNode && !selectedNode.ignoresMouse()) {
-      console.log("Setting focusedNode to ", selectedNode);
+    if (selectedNode && !selectedNode.value().getLayout().ignoresMouse()) {
       this.setFocusedNode(selectedNode);
       // console.log("Selected Node has nothing", selectedNode);
     } else {
@@ -899,7 +796,7 @@ export default class Input {
     if (this._clicksDetected >= 2) {
       // Double click ended.
       if (this._clickedNode) {
-        this._viewport.showInCamera(this._clickedNode);
+        this.nav().showInCamera(this._clickedNode);
         this._clickedNode = null;
       }
     }
@@ -928,7 +825,7 @@ export default class Input {
     this._attachedMouseListener = null;
     this.resetImpulse();
 
-    if (!this._viewport.world().commitLayout(INPUT_LAYOUT_TIME)) {
+    if (!this.world().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
       return true;
     }
 
@@ -979,19 +876,27 @@ export default class Input {
     ++this._mouseVersion;
   }
 
+  width() {
+    return this.nav().camera().width();
+  }
+
+  height() {
+    return this.nav().camera().height();
+  }
+
   resetCamera(complete?: boolean) {
     const defaultScale = 0.25;
     const cam = this.camera();
-    let x = this._viewport.gl().drawingBufferWidth / 2;
-    let y = this._viewport.gl().drawingBufferHeight / 2;
+    let x = this.width() / 2;
+    let y = this.height() / 2;
     if (!complete && cam.x() === x && cam.y() === y) {
       cam.setScale(defaultScale);
     } else {
       if (complete) {
         cam.setScale(defaultScale);
       }
-      x = this._viewport.width() / (2 * defaultScale);
-      y = this._viewport.height() / (2 * defaultScale);
+      x = this.width() / (2 * defaultScale);
+      y = this.height() / (2 * defaultScale);
       cam.setOrigin(x, y);
     }
   }
@@ -1003,15 +908,16 @@ export default class Input {
     const ySpeed = 1000 / cam.scale();
     const scaleSpeed = 20;
 
-    let needsUpdate = this._viewport.mouseVersion() !== this.mouseVersion();
-    this.window().log(
+    let needsUpdate = this.nav().mouseVersion() !== this.mouseVersion();
+    logc(
+      "Input updates",
       "Input.update=" +
-        (this._viewport.mouseVersion() + " vs " + this.mouseVersion())
+        (this.nav().mouseVersion() + " vs " + this.mouseVersion())
     );
 
     this._updateRepeatedly = false;
 
-    if (this.getKey(RESET_CAMERA_KEY) && this._viewport.gl()) {
+    if (this.getKey(RESET_CAMERA_KEY)) {
       this.resetCamera(false);
       needsUpdate = true;
     }
@@ -1042,8 +948,8 @@ export default class Input {
       needsUpdate = true;
       cam.zoomToPoint(
         Math.pow(1.1, scaleSpeed * this.keyElapsed(ZOOM_OUT_KEY, t)),
-        this._viewport.gl().drawingBufferWidth / 2,
-        this._viewport.gl().drawingBufferHeight / 2
+        this.width() / 2,
+        this.height() / 2
       );
     }
     if (this.getKey(ZOOM_IN_KEY)) {
@@ -1053,19 +959,14 @@ export default class Input {
       if (cam.scale() >= MIN_CAMERA_SCALE) {
         cam.zoomToPoint(
           Math.pow(1.1, -scaleSpeed * this.keyElapsed(ZOOM_IN_KEY, t)),
-          this._viewport.gl().drawingBufferWidth / 2,
-          this._viewport.gl().drawingBufferHeight / 2
+          this.width() / 2,
+          this.height() / 2
         );
       }
     }
 
     if (this._focusedNode) {
-      if (this._spotlight.animating() || this.showingCaret()) {
-        const animationPct = (t.getTime() % 1000) / 1000;
-        this._caretColor.setA(
-          (1 + Math.cos(Math.PI + 2 * Math.PI * animationPct)) / 2
-        );
-        console.log(this._caretColor);
+      if (this._spotlight.animating()) {
         this._updateRepeatedly = true;
         needsUpdate = true;
       }
@@ -1111,82 +1012,29 @@ export default class Input {
     return elapsed;
   }
 
-  window() {
-    return this._viewport.window();
-  }
-
-  viewport() {
-    return this._viewport;
-  }
-
-  showingCaret() {
-    if (!this._focusedNode || this._focusedNode.needsPosition()) {
-      return false;
-    }
-    const label = this._focusedNode._label;
-    return label && label._x != null && label._y != null;
-  }
-
-  paint() {
-    const window = this.window();
-
-    if (this._caretPainter) {
-      this._caretPainter.clear();
-    }
-
-    if (!this._focusedNode || this._focusedNode.needsPosition()) {
+  paint(proj: Projector) {
+    if (!this._focusedNode || this._focusedNode.value().getLayout().needsPosition()) {
       return;
     }
 
-    const label = this._focusedNode._label;
-    if (!label || !label.editable() || !this._focusedLabel) {
-      this._spotlight.paint();
-      return;
-    }
-
-    const cr = label.getCaretRect();
-    if (this.showingCaret()) {
-      if (!this._caretPainter) {
-        this._caretPainter = new BlockPainter(window);
-      }
-      this._caretPainter.initBuffer(1);
-      this._caretPainter.setBorderColor(this._caretColor);
-      this._caretPainter.setBackgroundColor(this._caretColor);
-      this._caretPainter.drawBlock(
-        label._x + cr.x() * label._scale,
-        label._y + cr.y() * label._scale,
-        label._scale * cr.width(),
-        label._scale * cr.height(),
-        0.01,
-        0.02
-      );
-    }
+    this._spotlight.paint(proj);
   }
 
   focusedNode() {
     return this._focusedNode;
   }
 
-  setFocusedNode(focusedNode: Node<DefaultNodeType>) {
+  setFocusedNode(focusedNode: PaintedNode) {
     if (focusedNode === this._focusedNode) {
       return;
     }
     this._focusedNode = focusedNode;
-    const selectedNode = this._focusedNode;
-    // console.log("Clicked");
-    this._focusedLabel =
-      selectedNode &&
-      selectedNode._label &&
-      !Number.isNaN(selectedNode._label._x) &&
-      selectedNode._label.editable();
-
-    if (this._focusedNode && this._viewport) {
-      this._viewport.showInCamera(this._focusedNode);
+    if (this._focusedNode) {
+      this.nav().showInCamera(this._focusedNode);
       this.carousel().clearCarousel();
       this.carousel().hideCarousel();
       this.carousel().scheduleCarouselRepaint();
       this._spotlight.restart(this._focusedNode);
-      this._focusedNode.events().emit("carousel-load", this._viewport);
     }
     this.scheduleRepaint();
   }
@@ -1196,31 +1044,22 @@ export default class Input {
   }
 
   menu() {
-    return this._viewport.menu();
+    return this.nav().menu();
+  }
+
+  nav() {
+    return this._nav;
   }
 
   world() {
-    return this._viewport.world();
+    return this.nav().root();
   }
 
-  contextChanged(isLost: boolean) {
-    if (this._caretPainter) {
-      this._caretPainter.contextChanged(isLost);
-    }
-    this._spotlight.contextChanged(isLost);
-  }
-
-  render(world: Matrix3x3, scale: number) {
-    const gl = this._viewport.gl();
-    if (this._caretPainter) {
-      gl.disable(gl.CULL_FACE);
-      gl.disable(gl.DEPTH_TEST);
-      // gl.disable(gl.BLEND);
-      this._caretPainter.render(world, scale);
-    }
+  render(proj: Projector) {
+    const gl = proj.glProvider().gl();
     if (this._spotlight) {
       gl.enable(gl.BLEND);
-      return this._spotlight.render(world);
+      return this._spotlight.render(proj);
     }
     return false;
   }

@@ -30,9 +30,9 @@ export default class CameraFilter extends Animator {
   getNodePosition() {
     const node = this.focusedNode();
     return {
-      x: node.absoluteX(),
-      y: node.absoluteY(),
-      scale: node.absoluteScale(),
+      x: node.value().getLayout().absoluteX(),
+      y: node.value().getLayout().absoluteY(),
+      scale: node.value().getLayout().absoluteScale(),
     };
   }
 
@@ -81,8 +81,8 @@ export default class CameraFilter extends Animator {
   getFocusedCameraScale() {
     const cam = this.camera();
     const node = this.focusedNode();
-    const bodySize = node.absoluteSize();
-    const nodeScale = node.absoluteScale();
+    const bodySize = node.value().getLayout().absoluteSize();
+    const nodeScale = node.value().getLayout().absoluteScale();
     const screenWidth = cam.width();
     const screenHeight = cam.height();
 
