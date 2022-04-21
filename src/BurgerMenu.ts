@@ -33,10 +33,10 @@ const menuIcons = [
 const MENU_ICON_MAIN = MenuIcon.MAIN;
 const MENU_ICON_UNDO = MenuIcon.UNDO;
 const MENU_ICON_REDO = MenuIcon.REDO;
-const MENU_ICON_VSPLIT = MenuIcon.VSPLIT;
-const MENU_ICON_HSPLIT = MenuIcon.HSPLIT;
+//const MENU_ICON_VSPLIT = MenuIcon.VSPLIT;
+//const MENU_ICON_HSPLIT = MenuIcon.HSPLIT;
 const MENU_ICON_RESET_CAMERA = MenuIcon.RESET_CAMERA;
-const MENU_ICON_CLOSE = MenuIcon.CLOSE;
+//const MENU_ICON_CLOSE = MenuIcon.CLOSE;
 // const MENU_ICON_DEBUG = MenuIcon.DEBUG;
 
 class BurgerMenuLocation {
