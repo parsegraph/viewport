@@ -19,12 +19,12 @@ const hasCSSFiles = ()=>{
   return hasFiles("css");
 }
 
-const hasPNGFiles = ()=>{
-  return hasFiles("png");
-}
-
 const hasCSVFiles = ()=>{
   return hasFiles("csv") || hasFiles("tsv") || hasFiles("txt");
+}
+
+const hasPNGFiles = ()=>{
+  return hasFiles("png");
 }
 
 const hasDependency = (dep)=>{
@@ -126,12 +126,10 @@ const webpackConfig = (prod)=>{
     extensions.push(".css");
   }
   if (hasPNGFiles()) {
-    console.log("PNG!");
     rules.push({
       test: /\.png/,
       type: "asset/inline"
     });
-    //extensions.push(".png");
   }
 
   return {
