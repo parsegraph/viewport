@@ -477,9 +477,11 @@ export default class InputController {
   _verticalImpulse: number;
   _clickedNode: PaintedNode;
   _inputs: Map<Projector, Input>;
+  _mousePos: [number, number];
 
   constructor(nav: Navport) {
     this._nav = nav;
+    this._mousePos = [0, 0];
     this._mousedownTime = null;
     this._mouseupTimeout = new TimeoutTimer();
     this._mouseupTimeout.setListener(this.afterMouseTimeout, this);
@@ -966,7 +968,6 @@ export default class InputController {
       return;
     }
 
-
     const mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.camera().worldMatrix()),
       event.x,
@@ -979,18 +980,28 @@ export default class InputController {
       return;
     }
 
-    this._spotlight.dispose();
-
-    // console.log("Checking for node");
-    this._mousedownTime = Date.now();
     if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
       // console.log("Node clicked.");
       // return true;
+      this.savePos(
+        mouseInWorld[0],
+        mouseInWorld[1]
+      );
+      this._spotlight.dispose();
+      if (!this._mousedownTime) {
+        // console.log("Checking for node");
+        this._mousedownTime = Date.now();
+      }
     }
 
     this._attachedMouseListener = this.mouseDragListener;
     // console.log("Repainting graph");
     return true;
+  }
+
+  savePos(x:number, y:number) {
+    this._mousePos[0] = x;
+    this._mousePos[1] = y;
   }
 
   onMousemove(event: any, proj: Projector) {
@@ -1063,9 +1074,12 @@ export default class InputController {
     return true;
   }
 
-  checkForNodeClick(x: number, y: number):PaintedNode {
+  checkForNodeClick(x: number, y: number):boolean {
     if (this.world().value().getLayout().commitLayoutIteratively(INPUT_LAYOUT_TIME)) {
-      return null;
+      this._clickedNode = null;
+      this.setFocusedNode(null);
+      this.nav().showInCamera(null);
+      return false;
     }
     const selectedNode = this.world()
       .value()
@@ -1073,9 +1087,10 @@ export default class InputController {
       .nodeUnderCoords(x, y) as PaintedNode;
     if (!selectedNode) {
       logc("Mouse clicks", "No node found under coords:", x, y);
+      this._clickedNode = null;
       this.setFocusedNode(null);
       this.nav().showInCamera(null);
-      return null;
+      return false;
     }
 
     logc(
@@ -1086,44 +1101,41 @@ export default class InputController {
       y
     );
 
-    // Check if the selected node has a click listener.
-    if (selectedNode.value().interact().hasClickListener()) {
-      // console.log("Selected Node has click listener", selectedNode);
-      if (this._focusedNode === selectedNode) {
-        const rv = selectedNode.value().interact().click();
-        if (rv !== false) {
-          return selectedNode;
-        }
-      } else {
-        this.setFocusedNode(selectedNode);
-        this.scheduleRepaint();
-      }
+    if (selectedNode !== this._clickedNode) {
+      this._clickedNode = null;
     }
+    this.setFocusedNode(selectedNode);
 
-    if (selectedNode) {
-      this.setFocusedNode(selectedNode);
-      // console.log("Selected Node has nothing", selectedNode);
-    } else {
-      this.setFocusedNode(selectedNode);
-      this._clickedNode = selectedNode;
-    }
-
-    return null;
+    return true;
   }
 
   afterMouseTimeout() {
     // Cancel the timer if we have found a double click
     this._mouseupTimeout.cancel();
 
-    if (this._clicksDetected >= 2) {
-      // Double click ended.
-      if (this._clickedNode) {
-        this.nav().showInCamera(this._clickedNode);
-        this._clickedNode = null;
+    const selectedNode = this.focusedNode();
+    if (selectedNode) {
+      if (this._clicksDetected >= 2) {
+        // Double click ended.
+        this.nav().showInCamera(selectedNode);
+      } else if (this._clicksDetected > 0) {
+        // Check if the selected node has a click listener.
+        if (this._clickedNode === selectedNode) {
+          if (selectedNode.value().interact().hasClickListener()) {
+            // console.log("Selected Node has click listener", selectedNode);
+            if (selectedNode.value().interact().click()) {
+              this._clickedNode = null;
+            }
+            this.scheduleRepaint();
+          }
+        } else {
+          this._clickedNode = selectedNode;
+        }
       }
     }
 
     this._clicksDetected = 0;
+    this._mousedownTime = null;
   }
 
   onMouseup(event: any) {
@@ -1414,6 +1426,6 @@ export default class InputController {
   }
 }
 
-const CLICK_DELAY_MILLIS: number = 500;
+const CLICK_DELAY_MILLIS: number = 200;
 type InputListener = (eventType: string, inputData?: any) => boolean;
 

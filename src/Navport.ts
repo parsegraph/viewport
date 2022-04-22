@@ -225,7 +225,7 @@ export default class Navport implements Projected {
     this._displayMode = new FullscreenViewportDisplayMode();
     this._cameraFilter = new CameraFilter(this);
     this._input = new InputController(this);
-    this._carousel = new Carousel(this.camera());
+    this._carousel = new Carousel(new Camera());
     this._carousel.setOnScheduleRepaint(this.scheduleRepaint, this);
 
     this._menu = new BurgerMenu(this);
@@ -488,6 +488,14 @@ export default class Navport implements Projected {
     }
     // this._piano.render(world, cam.scale());
     if (!projector.isOffscreen()) {
+      const scale = this.camera().scale();
+      const x = this.camera().x();
+      const y = this.camera().y();
+      const cam = this.carousel().camera();
+      cam.copy(this.camera());
+      cam.setSize(this.camera().width(), this.camera().height());
+      cam.setOrigin(0, 0);
+      cam.setScale(1);
       this._carousel.render(projector);
       if (this._displayMode.showMenu(projector, this)) {
         this._menu.showSplit(this._displayMode.allowSplit(projector, this));
