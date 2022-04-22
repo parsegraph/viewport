@@ -6,10 +6,11 @@ import Direction from "parsegraph-direction";
 
 import Block, { DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
+import Carousel, {ActionCarousel} from 'parsegraph-carousel';
 
 // import Freezer from "../freezer/Freezer";
 
-const buildGraph = () => {
+const buildGraph = (carousel: Carousel) => {
   const car = new DirectionCaret<Block>("u", new DefaultBlockPalette());
 
   const root = car.root();
@@ -28,6 +29,11 @@ const buildGraph = () => {
     }
     car.spawn(dir, "b");
     car.node().value().setLabel("No time");
+    const ac = new ActionCarousel(carousel);
+    ac.addAction("Edit", ()=>{
+      alert("Showing editor");
+    });
+    ac.install(car.node());
     car.pull(dir);
     car.move(dir);
   }
@@ -36,11 +42,18 @@ const buildGraph = () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const belt = new TimingBelt();
-  const root = buildGraph();
-  const comp = new Viewport(root);
+  const comp = new Viewport();
+  const root = buildGraph(comp.carousel());
+  comp.setRoot(root);
+  comp.menu().setSearchCallback((cmd:string)=>{
+    alert(cmd);
+  });
 
   const projector = new BasicProjector();
   document.getElementById("demo").appendChild(projector.container());
+  new ResizeObserver(()=>{
+    belt.scheduleUpdate();
+  }).observe(projector.container());
   const proj = new Projection(projector, comp);
   belt.addRenderable(proj);
 });

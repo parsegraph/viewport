@@ -3,6 +3,7 @@ import { matrixMultiply3x3I, makeTranslation3x3 } from "parsegraph-matrix";
 import rainbackMenu from "./rainback-menu-icons.png";
 import Navport from "./Navport";
 import { Projector } from "parsegraph-projector";
+import Method from 'parsegraph-method';
 
 const MENU_ICON_TEXTURE_SIZE = 32;
 const MENU_ICON_SIZE = 32;
@@ -33,10 +34,10 @@ const menuIcons = [
 const MENU_ICON_MAIN = MenuIcon.MAIN;
 const MENU_ICON_UNDO = MenuIcon.UNDO;
 const MENU_ICON_REDO = MenuIcon.REDO;
-//const MENU_ICON_VSPLIT = MenuIcon.VSPLIT;
-//const MENU_ICON_HSPLIT = MenuIcon.HSPLIT;
+// const MENU_ICON_VSPLIT = MenuIcon.VSPLIT;
+// const MENU_ICON_HSPLIT = MenuIcon.HSPLIT;
 const MENU_ICON_RESET_CAMERA = MenuIcon.RESET_CAMERA;
-//const MENU_ICON_CLOSE = MenuIcon.CLOSE;
+// const MENU_ICON_CLOSE = MenuIcon.CLOSE;
 // const MENU_ICON_DEBUG = MenuIcon.DEBUG;
 
 class BurgerMenuLocation {
@@ -51,7 +52,7 @@ class BurgerMenuScene {
   _iconPainter: TexturePainter;
   _iconImage: HTMLImageElement;
   _iconReady: boolean;
-  _textInput: HTMLInputElement;
+  _search: HTMLElement;
 
   constructor(menu: BurgerMenu, proj: Projector) {
     this._projector = proj;
@@ -66,9 +67,18 @@ class BurgerMenuScene {
     this._iconTexture = null;
     this._iconPainter = null;
 
-    this._textInput = document.createElement("input");
-    this._textInput.style.display = "none";
-    this._textInput.placeholder = "Search";
+    this._search = document.createElement("form");
+    this._search.style.display = "none";
+    this._search.addEventListener("submit", e=>{
+      e.preventDefault();
+      if (!menu.search(input.value)) {
+        input.value = "";
+      }
+    });
+
+    const input = document.createElement("input");
+    input.placeholder = menu.searchPlaceholder();
+    this._search.appendChild(input);
   }
 
   menu() {
@@ -148,16 +158,18 @@ class BurgerMenuScene {
       const pad = MENU_ICON_PADDING;
       this.drawIcon(MENU_ICON_REDO, -MENU_ICON_SIZE - pad);
       this.drawIcon(MENU_ICON_UNDO, -2 * MENU_ICON_SIZE - pad);
-      this._textInput.style.display = "block";
-      this._textInput.style.position = "absolute";
-      this._textInput.style.width = MENU_ICON_SIZE * 6 + "px";
-      this._textInput.style.transform = "translateX(-50%)";
+      this._search.style.pointerEvents = "all";
+      this._search.style.display = "block";
+      this._search.style.position = "absolute";
+      this._search.style.width = MENU_ICON_SIZE * 6 + "px";
       if (!proj.isOffscreen()) {
-        proj.getDOMContainer().appendChild(this._textInput);
+        if (this._search.parentElement !== proj.getDOMContainer()) {
+          proj.getDOMContainer().appendChild(this._search);
+        }
       }
     } else {
       if (!proj.isOffscreen()) {
-        this._textInput.remove();
+        this._search.remove();
       }
     }
   }
@@ -167,10 +179,10 @@ class BurgerMenuScene {
       return;
     }
     if (this.menu().opened()) {
-      this._textInput.style.left = this.projector().width() / 2 + "px";
-      this._textInput.style.bottom =
+      this._search.style.left = (this.projector().width() / 2 + MENU_ICON_SIZE) + "px";
+      this._search.style.bottom =
         this.projector().height() -
-        MENU_ICON_SIZE -
+        6 -
         1.5 * MENU_ICON_PADDING +
         "px";
     }
@@ -186,21 +198,24 @@ class BurgerMenuScene {
   }
 
   dispose() {
-    if (this._textInput) {
-      this._textInput.remove();
+    if (this._search) {
+      this._search.remove();
     }
-    this._textInput = null;
+    this._search = null;
   }
 }
 
 export default class BurgerMenu {
   _viewport: Navport;
   _scenes: Map<Projector, BurgerMenuScene>;
-
   _menuOpened: boolean;
   _menuHovered: MenuIcon;
   _iconLocations: BurgerMenuLocation[];
   _showSplit: boolean;
+  _undoAction:Method;
+  _redoAction:Method;
+  _searchCallback:Method;
+  _searchPlaceholder: string;
 
   viewport() {
     return this._viewport;
@@ -220,6 +235,7 @@ export default class BurgerMenu {
 
   constructor(viewport: Navport) {
     this._viewport = viewport;
+    this._scenes = new Map();
 
     this._menuOpened = false;
     this._menuHovered = null;
@@ -229,6 +245,36 @@ export default class BurgerMenu {
       bl.location = NaN;
       return bl;
     });
+
+    this._undoAction = new Method();
+    this._redoAction = new Method();
+    this._searchCallback = new Method();
+    this._searchPlaceholder = "Search";
+  }
+
+  search(cmd: string):boolean {
+    return this._searchCallback.call(cmd);
+  }
+
+  setSearchPlaceholder(text:string) {
+    this._searchPlaceholder = text;
+    this.scheduleRepaint();
+  }
+
+  setSearchCallback(cb:Function, obj?: object) {
+    this._searchCallback.set(cb, obj);
+  }
+
+  searchPlaceholder() {
+    return this._searchPlaceholder;
+  }
+
+  setRedoAction(cb:Function, obj?: object) {
+    this._redoAction.set(cb, obj);
+  }
+
+  setUndoAction(cb:Function, obj?: object) {
+    this._undoAction.set(cb, obj);
   }
 
   showSplit(show?: boolean): boolean {
@@ -322,11 +368,11 @@ export default class BurgerMenu {
         return true;
       }
       if (iconLocation.icon == MENU_ICON_UNDO) {
-        console.log("Undo!");
+        this._undoAction.call();
         return true;
       }
       if (iconLocation.icon == MENU_ICON_REDO) {
-        console.log("Redo!");
+        this._redoAction.call();
         return true;
       }
       if (iconLocation.icon == MENU_ICON_RESET_CAMERA) {
@@ -334,7 +380,6 @@ export default class BurgerMenu {
         this._viewport.scheduleRender();
         return true;
       }
-      throw new Error("Unhandled menu icon type: " + iconLocation.icon);
     }
     return false;
   }

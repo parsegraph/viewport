@@ -1,7 +1,7 @@
 import { TimeoutTimer } from "parsegraph-timing";
 import fuzzyEquals from "parsegraph-fuzzyequals";
 import { INTERVAL } from "parsegraph-timingbelt";
-import { Keystroke, CLICK_DELAY_MILLIS } from "parsegraph-input";
+import { Keystroke } from "parsegraph-input";
 import { matrixTransform2D, makeInverse3x3 } from "parsegraph-matrix";
 import { Direction, Alignment } from "parsegraph-direction";
 import AnimatedSpotlight from "parsegraph-animatedspotlight";
@@ -10,6 +10,10 @@ import { logc } from "parsegraph-log";
 import { PaintedNode } from "parsegraph-artist";
 import Navport from "./Navport";
 import { Projector } from "parsegraph-projector";
+
+import normalizeWheel from "parsegraph-normalizewheel";
+import { midPoint } from "parsegraph-matrix";
+import {TouchRecord} from "parsegraph-input";
 
 export const TOUCH_SENSITIVITY = 1;
 export const MOUSE_SENSITIVITY = 1;
@@ -58,7 +62,7 @@ export const INPUT_LAYOUT_TIME = INTERVAL;
 const RESET_CAMERA_KEY = "Escape";
 const CLICK_KEY = " ";
 
-const WHEEL_MOVES_FOCUS = true;
+const WHEEL_MOVES_FOCUS = false;
 
 const MOVE_UPWARD_KEY = "ArrowUp";
 const MOVE_DOWNWARD_KEY = "ArrowDown";
@@ -81,19 +85,390 @@ const ZOOM_OUT_KEY = "ZoomOut";
 
 const minimum = 0.005;
 
-export default class Input {
+class Input {
+  _isDoubleClick: boolean;
+  _isDoubleTouch: boolean;
+  _lastMouseX: number;
+  _lastMouseY: number;
+  _listener: InputListener;
+
+  _monitoredTouches: TouchRecord[];
+  _touchstartTime: number;
+  _touchendTimeout: any;
+  _mouseupTimeout: number;
+  _mousedownTime: number;
+  _focused: boolean;
+  _mainContainer: HTMLElement;
+  _domContainer: HTMLElement;
+
+  constructor(
+    mainContainer: HTMLElement,
+    domContainer: HTMLElement,
+    listener: InputListener
+  ) {
+    if (!mainContainer) {
+      throw new Error("container must be provided");
+    }
+    if (!domContainer) {
+      throw new Error("domContainer must be provided");
+    }
+    if (!listener) {
+      throw new Error("Event listener must be provided");
+    }
+    this._mainContainer = mainContainer;
+    this._domContainer = domContainer;
+    this._isDoubleClick = false;
+    this._isDoubleTouch = false;
+
+    this._lastMouseX = 0;
+    this._lastMouseY = 0;
+
+    this._monitoredTouches = [];
+    this._touchstartTime = null;
+
+    this._isDoubleClick = false;
+    this._mouseupTimeout = 0;
+
+    // Whether the container is focused and not blurred.
+    this._focused = false;
+    this._listener = listener;
+
+    this.mainContainer().setAttribute("tabIndex", "0");
+
+    const addListeners = (
+      elem: Element,
+      listeners: [string, (event: Event) => void][]
+    ) => {
+      listeners.forEach((pair: [string, (event: Event) => void]) => {
+        elem.addEventListener(pair[0] as string, (event) => {
+          return (pair[1] as Function).call(this, event);
+        });
+      });
+    };
+
+    addListeners(this.mainContainer(), [
+      ["blur", this.blurListener],
+      ["focus", this.focusListener],
+      ["keydown", this.keydownListener],
+      ["keyup", this.keyupListener],
+    ]);
+
+    this.domContainer().style.pointerEvents = "auto";
+
+    addListeners(this.domContainer(), [
+      ["DOMMouseScroll", this.onWheel],
+      ["mousewheel", this.onWheel],
+      ["touchstart", this.touchstartListener],
+      ["touchmove", this.touchmoveListener],
+      ["touchend", this.removeTouchListener],
+      ["touchcancel", this.removeTouchListener],
+      ["mousedown", this.mousedownListener],
+      ["mousemove", this.mousemoveListener],
+      ["mouseup", this.mouseupListener],
+      ["mouseout", this.mouseupListener],
+    ]);
+  }
+
+  mainContainer() {
+    return this._mainContainer;
+  }
+
+  domContainer() {
+    return this._domContainer;
+  }
+
+  focusListener() {
+    this._focused = true;
+  }
+
+  blurListener() {
+    this._focused = false;
+  }
+
+  focused() {
+    return this._focused;
+  }
+
+  numActiveTouches() {
+    let realMonitoredTouches = 0;
+    this._monitoredTouches.forEach(function (touchRec) {
+      if (touchRec.touchstart) {
+        realMonitoredTouches++;
+      }
+    }, this);
+    return realMonitoredTouches;
+  }
+
+  lastMouseCoords() {
+    return [this._lastMouseX, this._lastMouseY];
+  }
+
+  lastMouseX() {
+    return this._lastMouseX;
+  }
+
+  lastMouseY() {
+    return this._lastMouseY;
+  }
+
+  /**
+   * The receiver of all canvas wheel events.
+   *
+   * @param {WheelEvent} event current wheel event
+   */
+  onWheel(event: WheelEvent) {
+    event.preventDefault();
+
+    // console.log("Wheel event", wheel);
+    const e = normalizeWheel(event);
+    this.handleEvent("wheel", {
+      x: event.offsetX,
+      y: event.offsetY,
+      spinX: e.spinX,
+      spinY: e.spinY,
+      pixelX: e.pixelX,
+      pixelY: e.pixelY,
+    });
+  }
+
+  mousedownListener(event: MouseEvent) {
+    this._focused = true;
+
+    this._lastMouseX = event.offsetX;
+    this._lastMouseY = event.offsetY;
+
+    this._mousedownTime = Date.now();
+
+    if (
+      this.handleEvent("mousedown", {
+        x: this._lastMouseX,
+        y: this._lastMouseY,
+        button: event.button,
+        startTime: this._mousedownTime,
+      })
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.mainContainer().focus();
+    }
+
+    // This click is a second click following
+    // a recent click; it's a double-click.
+    if (this._mouseupTimeout) {
+      window.clearTimeout(this._mouseupTimeout);
+      this._mouseupTimeout = null;
+      this._isDoubleClick = true;
+    }
+  }
+
+  removeTouchListener(event: TouchEvent) {
+    // console.log("touchend");
+    for (let i = 0; i < event.changedTouches.length; ++i) {
+      const touch = event.changedTouches[i];
+      this.removeTouchByIdentifier(touch.identifier);
+    }
+
+    if (
+      this.numActiveTouches() > 0
+    ) {
+      return;
+    }
+    this._touchendTimeout = setTimeout(()=>{
+      this._touchendTimeout = null;
+
+      if (this._touchstartTime != null &&
+        Date.now() - this._touchstartTime < 2 * CLICK_DELAY_MILLIS) {
+        if (!this._isDoubleTouch) {
+          // Single touch ended.
+          this.handleEvent("mousedown", {
+            x: this._lastMouseX,
+            y: this._lastMouseY,
+            startTime: this._touchstartTime,
+            button: 0
+          })
+        }
+      }
+      this._isDoubleTouch = false;
+      this._touchstartTime = null;
+    }, CLICK_DELAY_MILLIS);
+  }
+
+  touchmoveListener(event: TouchEvent) {
+    /*if (!this._focused) {
+      return;
+    }*/
+    event.preventDefault();
+    // console.log("touchmove", event);
+
+    for (let i = 0; i < event.changedTouches.length; ++i) {
+      const touch = event.changedTouches[i];
+      const touchRecord = this.getTouchByIdentifier(touch.identifier);
+
+      const touchX = touch.pageX;
+      const touchY = touch.pageY;
+      /*this.handleEvent("touchmove", {
+        multiple: this._monitoredTouches.length != 1,
+        x: touchX,
+        y: touchY,
+        dx: touchX - touchRecord.x,
+        dy: touchY - touchRecord.y,
+      });*/
+      touchRecord.x = touchX;
+      touchRecord.y = touchY;
+      this._lastMouseX = touchX;
+      this._lastMouseY = touchY;
+    }
+
+    if (this.numActiveTouches() > 1) {
+      const zoomCenter = midPoint(
+        this._monitoredTouches[0].x,
+        this._monitoredTouches[0].y,
+        this._monitoredTouches[1].x,
+        this._monitoredTouches[1].y
+      );
+
+      const zoomSize = Math.sqrt(
+        Math.pow(this._monitoredTouches[1].x - this._monitoredTouches[0].x, 2) +
+        Math.pow(this._monitoredTouches[1].y - this._monitoredTouches[0].y, 2)
+      );
+      if (isNaN(this._zoomSize) || !fuzzyEquals(zoomSize, this._zoomSize, 40)) {
+        this.handleEvent("wheel", {
+          x: zoomCenter[0],
+          y: zoomCenter[1],
+          spinY: this._zoomSize > zoomSize ? 1 : -1,
+        });
+        this._zoomSize = zoomSize;
+      }
+    }
+  }
+
+  _zoomSize: number;
+
+  touchstartListener(event: TouchEvent) {
+    event.preventDefault();
+    this._focused = true;
+    if(this._touchendTimeout) {
+      clearTimeout(this._touchendTimeout);
+      this._touchendTimeout = null;
+    }
+    for (let i = 0; i < event.changedTouches.length; ++i) {
+      const touch = event.changedTouches[i];
+      const touchX = touch.pageX;
+      const touchY = touch.pageY;
+      const touchRec = new TouchRecord(
+        touch.identifier,
+        touchX,
+        touchY,
+        touchX,
+        touchY
+      );
+      this._monitoredTouches.push(touchRec);
+      this._lastMouseX = touchX;
+      this._lastMouseY = touchY;
+
+      touchRec.touchstart = Date.now();
+      if (!this._touchstartTime) {
+        this._touchstartTime = Date.now();
+        this._isDoubleTouch = false;
+      } else {
+        this._isDoubleTouch = true;
+      }
+    }
+
+    if (this.numActiveTouches() > 1) {
+      this._touchstartTime = null;
+      this._isDoubleTouch = false;
+      // Zoom.
+      const zoomCenter = midPoint(
+        this._monitoredTouches[0].x,
+        this._monitoredTouches[0].y,
+        this._monitoredTouches[1].x,
+        this._monitoredTouches[1].y
+      );
+      this.handleEvent("touchzoom", {
+        x: zoomCenter[0],
+        y: zoomCenter[1],
+        dx: this._monitoredTouches[1].x - this._monitoredTouches[0].x,
+        dy: this._monitoredTouches[1].y - this._monitoredTouches[0].y,
+      });
+    }
+  }
+
+  getTouchByIdentifier(identifier: number): TouchRecord {
+    for (let i = 0; i < this._monitoredTouches.length; ++i) {
+      if (this._monitoredTouches[i].identifier == identifier) {
+        return this._monitoredTouches[i];
+      }
+    }
+    return null;
+  }
+
+  removeTouchByIdentifier(identifier: number) {
+    let touch = null;
+    for (let i = 0; i < this._monitoredTouches.length; ++i) {
+      if (this._monitoredTouches[i].identifier == identifier) {
+        touch = this._monitoredTouches.splice(i--, 1)[0];
+        break;
+      }
+    }
+    return touch;
+  }
+
+  mousemoveListener(event: MouseEvent) {
+    this.handleEvent("mousemove", {
+      x: event.offsetX,
+      y: event.offsetY,
+      dx: event.offsetX - this._lastMouseX,
+      dy: event.offsetY - this._lastMouseY,
+    });
+    this._lastMouseX = event.offsetX;
+    this._lastMouseY = event.offsetY;
+  }
+
+  mouseupListener() {
+    this.handleEvent("mouseup", {
+      x: this._lastMouseX,
+      y: this._lastMouseY,
+    });
+  }
+
+  keydownListener(event: KeyboardEvent) {
+    if (event.altKey || event.metaKey) {
+      // console.log("Key event had ignored modifiers");
+      return;
+    }
+    if (event.ctrlKey && event.shiftKey) {
+      return;
+    }
+
+    return this.handleEvent(
+      "keydown",
+      Keystroke.fromKeyboardEvent(event, this._lastMouseX, this._lastMouseY)
+    );
+  }
+
+  keyupListener(event: KeyboardEvent) {
+    return this.handleEvent(
+      "keyup",
+      Keystroke.fromKeyboardEvent(event, this._lastMouseX, this._lastMouseY)
+    );
+  }
+
+  handleEvent(eventType: string, inputData: any) {
+    return this._listener(eventType, inputData);
+  }
+}
+
+export default class InputController {
   _nav: Navport;
   _mousedownTime: number;
   _mouseupTimeout: TimeoutTimer;
   _updateRepeatedly: boolean;
   _focusedNode: PaintedNode;
-  _focusedLabel: boolean;
   _clicksDetected: number;
   _spotlight: AnimatedSpotlight;
   _mouseVersion: number;
   keydowns: { [id: string]: Date };
-  _zoomTouchDistance: number;
-  _selectedSlider: PaintedNode;
   listener: Method;
   _attachedMouseListener: Function;
   _horizontalJerk: number;
@@ -101,6 +476,7 @@ export default class Input {
   _horizontalImpulse: number;
   _verticalImpulse: number;
   _clickedNode: PaintedNode;
+  _inputs: Map<Projector, Input>;
 
   constructor(nav: Navport) {
     this._nav = nav;
@@ -108,11 +484,11 @@ export default class Input {
     this._mouseupTimeout = new TimeoutTimer();
     this._mouseupTimeout.setListener(this.afterMouseTimeout, this);
     this._mouseupTimeout.setDelay(CLICK_DELAY_MILLIS);
+    this._inputs = new Map();
 
     this._updateRepeatedly = false;
 
     this._focusedNode = null;
-    this._focusedLabel = false;
 
     this._clicksDetected = 0;
 
@@ -123,58 +499,39 @@ export default class Input {
     // A map of keyName's to a true value.
     this.keydowns = {};
 
-    this._zoomTouchDistance = 0;
-
-    this._selectedSlider = null;
-
     this.listener = null;
 
     this.resetImpulse();
   }
 
-  adjustSelectedSlider(newVal: number, isAbsolute?: boolean) {
-    if (!this._selectedSlider) {
-      return;
+  handleEvent(eventType: string, eventData: any, proj: Projector): boolean {
+    // console.log(eventType, eventData);
+    if (eventType === "blur") {
+      this.nav().menu().closeMenu();
+      return true;
     }
-    if (!isAbsolute) {
-      newVal = this._selectedSlider.value() + newVal;
+    if (eventType === "wheel") {
+      return this.onWheel(eventData);
     }
-    newVal = Math.max(0, Math.min(1, newVal));
-    this._selectedSlider.setValue(newVal);
-    this._selectedSlider.layoutChanged();
-    this.scheduleRepaint();
+    if (eventType === "mousedown") {
+      return this.onMousedown(eventData);
+    }
+    if (eventType === "mousemove") {
+      return this.onMousemove(eventData, proj);
+    }
+    if (eventType === "mouseup") {
+      return this.onMouseup(eventData);
+    }
+    if (eventType === "keydown") {
+      return this.onKeydown(eventData);
+    }
+    if (eventType === "keyup") {
+      return this.onKeyup(eventData);
+    }
+    console.log("Unhandled event type: " + eventType);
+    return false;
   }
 
-  setSelectedSlider() {
-    if (this._selectedSlider) {
-      this._selectedSlider.layoutChanged();
-    }
-    this._selectedSlider = null;
-    this.scheduleRepaint();
-  }
-
-  sliderKey(event: Keystroke) {
-    const diff = SLIDER_NUDGE;
-    switch (event.name()) {
-      case MOVE_BACKWARD_KEY:
-        this.adjustSelectedSlider(-diff, false);
-        return;
-      case MOVE_FORWARD_KEY:
-        this.adjustSelectedSlider(diff, false);
-        return;
-      case "Space":
-      case "Spacebar":
-      case " ":
-      case RESET_CAMERA_KEY:
-        this._selectedSlider.layoutChanged();
-        this._attachedMouseListener = null;
-        this._selectedSlider = null;
-        this.scheduleRepaint();
-        return;
-      default:
-        return false;
-    }
-  }
 
   focusMovementNavKey(event: Keystroke): boolean {
     switch (event.name()) {
@@ -323,7 +680,7 @@ export default class Input {
     return false;
   }
 
-  nodeUnderCursor() {
+  nodeUnderCursor():PaintedNode {
     return this._focusedNode;
   }
 
@@ -332,14 +689,10 @@ export default class Input {
     if (!event.name().length) {
       return false;
     }
-    // this._viewport.showInCamera(null);
+    // this.nav().showInCamera(null);
 
     if (this.carousel().carouselKey(event)) {
       // console.log("Carousel key processed.");
-      return true;
-    }
-
-    if (this._selectedSlider && this.sliderKey(event)) {
       return true;
     }
 
@@ -414,7 +767,6 @@ export default class Input {
     let neighbor = node.nodeAt(Direction.FORWARD);
     if (neighbor) {
       this.setFocusedNode(neighbor);
-      this._focusedLabel = !(event && event.ctrlKey);
       return true;
     }
     neighbor = node.nodeAt(Direction.OUTWARD);
@@ -463,7 +815,7 @@ export default class Input {
   }
 
   scheduleRepaint() {
-    this.world().value().scheduleUpdate();
+    this.world().value().scheduleRepaint();
     this.nav().scheduleRepaint();
   }
 
@@ -570,14 +922,23 @@ export default class Input {
 
     // Adjust the scale.
     const numSteps = event.spinY > 0 ? -1 : 1;
-    if (this._selectedSlider) {
-      this.adjustSelectedSlider(numSteps * SLIDER_NUDGE, false);
-      return true;
-    }
     const camera = this.camera();
     if (numSteps > 0 || camera.scale() >= MIN_CAMERA_SCALE) {
-      this.nav().showInCamera(null);
-      camera.zoomToPoint(Math.pow(1.1, numSteps), event.x, event.y);
+      if (this.focusedNode()) {
+        camera.zoomToPoint(
+          Math.pow(1.1, numSteps),
+          event.x,
+          event.y
+        );
+      } else {
+        //this.nav().showInCamera(null);
+        //camera.zoomToPoint(Math.pow(1.1, numSteps), event.x, event.y);
+        camera.zoomToPoint(
+          Math.pow(1.1, numSteps),
+          this.width() / 2,
+          this.height() / 2
+        );
+      }
     }
     this.mouseChanged();
     return true;
@@ -587,31 +948,9 @@ export default class Input {
     return this._nav.camera();
   }
 
-  onTouchzoom(event: any) {
-    // Zoom.
-    const dist = Math.sqrt(Math.pow(event.dx, 2) + Math.pow(event.dy, 2));
-    const cam = this.camera();
-    if (dist != 0 && this._zoomTouchDistance != 0) {
-      this.nav().showInCamera(null);
-      cam.zoomToPoint(dist / this._zoomTouchDistance, event.x, event.y);
-      this._zoomTouchDistance = dist;
-      this.mouseChanged();
-      return true;
-    }
-    this._zoomTouchDistance = dist;
-    return false;
-  }
-
-  onTouchmove(event: any, proj: Projector) {
-    if (event.multiple) {
-      return false;
-    }
-    return this.onMousemove(event, proj);
-  }
-
   mouseDragListener(x: number, y: number, dx: number, dy: number) {
     this.mouseChanged();
-    // this._viewport.showInCamera(null);
+    // this.nav().showInCamera(null);
     // const camera = this.camera();
     this.addImpulse(
       getMouseImpulseAdjustment() * -dx,
@@ -627,7 +966,6 @@ export default class Input {
       return;
     }
 
-    console.log("Mouse is down");
 
     const mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.camera().worldMatrix()),
@@ -648,10 +986,6 @@ export default class Input {
     if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
       // console.log("Node clicked.");
       // return true;
-    }
-
-    if (this._selectedSlider) {
-      this.setSelectedSlider();
     }
 
     this._attachedMouseListener = this.mouseDragListener;
@@ -704,15 +1038,15 @@ export default class Input {
 
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
-    if (!this._nav.root().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
+    if (this._nav.root().value().getLayout().commitLayoutIteratively(INPUT_LAYOUT_TIME)) {
       // console.log("Couldn't commit layout in time");
       overClickable = 1;
     } else {
-      overClickable = this._nav
+      /*overClickable = this._nav
         .root()
         .value()
         .interact()
-        .mouseOver(mouseInWorld[0], mouseInWorld[1]);
+        .mouseOver(mouseInWorld[0], mouseInWorld[1]);*/
     }
     switch (overClickable) {
       case 2:
@@ -729,15 +1063,8 @@ export default class Input {
     return true;
   }
 
-  onTouchstart(event: any) {
-    if (event.multiple) {
-      return false;
-    }
-    return this.onMousedown(event);
-  }
-
-  checkForNodeClick(x: number, y: number) {
-    if (!this.world().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
+  checkForNodeClick(x: number, y: number):PaintedNode {
+    if (this.world().value().getLayout().commitLayoutIteratively(INPUT_LAYOUT_TIME)) {
       return null;
     }
     const selectedNode = this.world()
@@ -773,7 +1100,7 @@ export default class Input {
       }
     }
 
-    if (selectedNode && !selectedNode.value().getLayout().ignoresMouse()) {
+    if (selectedNode) {
       this.setFocusedNode(selectedNode);
       // console.log("Selected Node has nothing", selectedNode);
     } else {
@@ -820,7 +1147,7 @@ export default class Input {
     this._attachedMouseListener = null;
     this.resetImpulse();
 
-    if (!this.world().value().getLayout().commitLayout(INPUT_LAYOUT_TIME)) {
+    if (this.world().value().getLayout().commitLayoutIteratively(INPUT_LAYOUT_TIME)) {
       return true;
     }
 
@@ -838,14 +1165,6 @@ export default class Input {
       // console.log("Click missed timeout");
     }
     return false;
-  }
-
-  onTouchend(event: any) {
-    if (event.multiple) {
-      return false;
-    }
-    this._zoomTouchDistance = 0;
-    return this.onMouseup(event);
   }
 
   SetListener(listener: Function, thisArg?: object) {
@@ -923,7 +1242,7 @@ export default class Input {
       this.getKey(MOVE_UPWARD_KEY) ||
       this.getKey(MOVE_DOWNWARD_KEY)
     ) {
-      console.log("Moving");
+      //console.log("Moving");
       this._updateRepeatedly = true;
       const x =
         cam.x() +
@@ -938,7 +1257,7 @@ export default class Input {
     }
 
     if (this.getKey(ZOOM_OUT_KEY)) {
-      console.log("Continuing to zoom out");
+      //console.log("Continuing to zoom out");
       this._updateRepeatedly = true;
       needsUpdate = true;
       cam.zoomToPoint(
@@ -948,7 +1267,7 @@ export default class Input {
       );
     }
     if (this.getKey(ZOOM_IN_KEY)) {
-      console.log("Continuing to zoom in");
+      //console.log("Continuing to zoom in");
       this._updateRepeatedly = true;
       needsUpdate = true;
       if (cam.scale() >= MIN_CAMERA_SCALE) {
@@ -1007,18 +1326,7 @@ export default class Input {
     return elapsed;
   }
 
-  paint(proj: Projector) {
-    if (
-      !this._focusedNode ||
-      this._focusedNode.value().getLayout().needsPosition()
-    ) {
-      return;
-    }
-
-    this._spotlight.paint(proj);
-  }
-
-  focusedNode() {
+  focusedNode():PaintedNode {
     return this._focusedNode;
   }
 
@@ -1037,10 +1345,6 @@ export default class Input {
     this.scheduleRepaint();
   }
 
-  focusedLabel() {
-    return this._focusedLabel;
-  }
-
   menu() {
     return this.nav().menu();
   }
@@ -1049,16 +1353,67 @@ export default class Input {
     return this._nav;
   }
 
-  world() {
+  world():PaintedNode {
     return this.nav().root();
+  }
+
+  paint(projector: Projector):boolean {
+    if (!this._inputs.has(projector)) {
+      this._inputs.set(
+        projector,
+        new Input(
+          projector.glProvider().container(),
+          projector.glProvider().container(),
+          (eventType: string, inputData?: any) => {
+            if (this.handleEvent(eventType, inputData, projector)) {
+              this.scheduleRepaint();
+              return true;
+            }
+            return false;
+          }
+        )
+      );
+    }
+    if (
+      !this._focusedNode ||
+      this._focusedNode.value().getLayout().needsPosition()
+    ) {
+      return false;
+    }
+
+    this._spotlight.paint(projector);
+    return false;
   }
 
   render(proj: Projector) {
     const gl = proj.glProvider().gl();
+    if (this.focusedNode()) {
+      const layout = this.focusedNode().value().getLayout();
+      const ctx = proj.overlay();
+      proj.overlay().strokeStyle = "white";
+      proj.overlay().lineWidth = 4;
+      proj.overlay().lineJoin = "round";
+      ctx.setLineDash([5]);
+      const rect = layout.absoluteSizeRect();
+      proj.overlay().save();
+      proj.overlay().resetTransform();
+      const sc = this.camera().scale();
+      proj.overlay().scale(sc, sc);
+      proj.overlay().translate(this.camera().x(), this.camera().y());
+      proj.overlay().strokeRect(
+        rect.x() - rect.width()/2, rect.y() - rect.height()/2, rect.width(), rect.height()
+      );
+      proj.overlay().restore();
+    }
     if (this._spotlight) {
       gl.enable(gl.BLEND);
+      this._spotlight.setWorldTransform(this.camera().project());
       return this._spotlight.render(proj);
     }
     return false;
   }
 }
+
+const CLICK_DELAY_MILLIS: number = 500;
+type InputListener = (eventType: string, inputData?: any) => boolean;
+

@@ -11,7 +11,7 @@ import { BasicGLProvider } from "parsegraph-compileprogram";
 import Color from "parsegraph-color";
 import { GraphPainter } from "parsegraph-graphpainter";
 
-export const FOCUS_SCALE = 1;
+export const FOCUS_SCALE = 2;
 
 const MIN_SPLIT_THRESHOLD = 800;
 const MIN_MENU_THRESHOLD = 400;
@@ -37,15 +37,16 @@ abstract class SplittingViewportDisplayMode implements ViewportDisplayMode {
 export class FullscreenViewportDisplayMode extends SplittingViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
     const cam = nav.camera();
+    cam.setSize(proj.width(), proj.height());
     let needsUpdate = false;
     proj.glProvider().container().style.width = "100%";
     proj.glProvider().container().style.height = "100%";
-    if (nav._nodeShown) {
+    if (nav.focusedNode()) {
       if (nav._cameraFilter.getRequiredScale() != nav.getRequiredScale()) {
         nav._cameraFilter.restart();
       } else if (
         !cam.containsAll(
-          nav._nodeShown.value().getLayout().absoluteSizeRect()
+          nav.focusedNode().value().getLayout().absoluteSizeRect()
         ) &&
         !nav._cameraFilter.animating()
       ) {
@@ -205,37 +206,23 @@ export default class Navport implements Projected {
   _renderedMouse: number;
   _needsRender: boolean;
   _focusScale: number;
-  _focusedNode: PaintedNode;
   _backgroundColor: Color;
-  _nodeShown: PaintedNode;
   _needsRepaint: boolean;
   _displayMode: ViewportDisplayMode;
   _update: Method;
   _cursor: string;
 
-  setCursor(cur: string): void {
-    this._cursor = cur;
-  }
-
-  scheduleUpdate() {
-    this._update.call();
-  }
-
-  setOnScheduleUpdate(func: Function, obj?: object) {
-    this._update.set(func, obj);
-  }
-
   constructor(
-    root: PaintedNode,
+    root?: PaintedNode,
     backgroundColor: Color = new Color(0, 0, 0, 1)
   ) {
     // Construct the graph.
     this._update = new Method();
     this._backgroundColor = backgroundColor;
     this._root = root;
+    this._camera = new Camera();
     this._painter = new GraphPainter(root, this._camera);
     this._displayMode = new FullscreenViewportDisplayMode();
-    this._camera = new Camera();
     this._cameraFilter = new CameraFilter(this);
     this._input = new InputController(this);
     this._carousel = new Carousel(this.camera());
@@ -248,6 +235,18 @@ export default class Navport implements Projected {
     this._needsRender = true;
 
     this._focusScale = FOCUS_SCALE;
+  }
+
+  setCursor(cur: string): void {
+    this._cursor = cur;
+  }
+
+  scheduleUpdate() {
+    this._update.call();
+  }
+
+  setOnScheduleUpdate(func: Function, obj?: object) {
+    this._update.set(func, obj);
   }
 
   width() {
@@ -279,47 +278,6 @@ export default class Navport implements Projected {
 
   displayMode() {
     return this._displayMode;
-  }
-
-  handleEvent(eventType: string, eventData: any, proj: Projector): boolean {
-    // console.log(eventType, eventData);
-    if (eventType === "blur") {
-      this._menu.closeMenu();
-      return true;
-    }
-    if (eventType === "wheel") {
-      return this._input.onWheel(eventData);
-    }
-    if (eventType === "touchmove") {
-      return this._input.onTouchmove(eventData, proj);
-    }
-    if (eventType === "touchzoom") {
-      return this._input.onTouchzoom(eventData);
-    }
-    if (eventType === "touchstart") {
-      this._nodeShown = null;
-      return this._input.onTouchstart(eventData);
-    }
-    if (eventType === "touchend") {
-      return this._input.onTouchend(eventData);
-    }
-    if (eventType === "mousedown") {
-      return this._input.onMousedown(eventData);
-    }
-    if (eventType === "mousemove") {
-      return this._input.onMousemove(eventData, proj);
-    }
-    if (eventType === "mouseup") {
-      return this._input.onMouseup(eventData);
-    }
-    if (eventType === "keydown") {
-      return this._input.onKeydown(eventData);
-    }
-    if (eventType === "keyup") {
-      return this._input.onKeyup(eventData);
-    }
-    console.log("Unhandled event type: " + eventType);
-    return false;
   }
 
   tick(startDate: number): boolean {
@@ -385,7 +343,7 @@ export default class Navport implements Projected {
     );
   }
 
-  root() {
+  root():PaintedNode {
     return this._root;
   }
 
@@ -394,6 +352,7 @@ export default class Navport implements Projected {
       return;
     }
     this._root = root;
+    this._painter.setRoot(this._root);
     this.scheduleUpdate();
   }
 
@@ -413,7 +372,7 @@ export default class Navport implements Projected {
     }
     if (!this.needsRepaint()) {
       // console.log("No need to paint; viewport is not dirty for window " + window.id());
-      return false;
+      //return false;
     }
 
     let needsUpdate = this.carousel().paint(projector, timeout);
@@ -434,9 +393,12 @@ export default class Navport implements Projected {
     return this._renderedMouse;
   }
 
+  focusedNode():PaintedNode {
+    return this._input.focusedNode();
+  }
+
   showInCamera(node: PaintedNode) {
-    const noPrior = !this._nodeShown;
-    this._nodeShown = node;
+    const noPrior = !this.focusedNode();
     this._input.setFocusedNode(node);
     if (noPrior && node) {
       this._cameraFilter.restart();
@@ -467,7 +429,7 @@ export default class Navport implements Projected {
 
   getRequiredScale() {
     return (
-      this.getFocusScale() / this._nodeShown.value().getLayout().absoluteScale()
+      this.getFocusScale() / this.focusedNode().value().getLayout().absoluteScale()
     );
   }
 
