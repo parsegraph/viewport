@@ -7,7 +7,6 @@ SCRIPT_FILES = \
 	src/navport/NavportCursor.ts \
 	src/navport/NavportKeyController.ts \
 	src/navport/displaymode/single.ts \
-	src/navport/displaymode/index.ts \
 	src/navport/displaymode/fit.ts \
 	src/navport/displaymode/fixed.ts \
 	src/navport/displaymode/fullscreen.ts \
@@ -19,6 +18,9 @@ SCRIPT_FILES = \
 	src/navport/png.d.ts \
 	src/navport/CameraFilter.ts \
 	src/navport/InputController.ts \
+	src/makeGraph.ts \
+	src/render.ts \
+	src/showGraph.ts \
 	src/input/AbstractMouseController.ts \
 	src/input/TouchInput.ts \
 	src/input/MouseInput.ts \
