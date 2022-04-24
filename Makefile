@@ -18,7 +18,6 @@ SCRIPT_FILES = \
 	src/navport/png.d.ts \
 	src/navport/CameraFilter.ts \
 	src/navport/InputController.ts \
-	src/makeGraph.ts \
 	src/render.ts \
 	src/showGraph.ts \
 	src/input/AbstractMouseController.ts \
