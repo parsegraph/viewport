@@ -54,7 +54,7 @@ export default class NavportMouseController extends BasicMouseController {
   }
 
   update(t: Date) {
-    let needsUpdate = this.nav().mouseVersion() !== this.mouseVersion();
+    const needsUpdate = this.nav().mouseVersion() !== this.mouseVersion();
 
     return needsUpdate;
   }

@@ -1,3 +1,8 @@
+import SplittingViewportDisplayMode from "./split";
+import {Projector} from 'parsegraph-projector';
+import Navport from "../Navport";
+import {showInCamera} from "parsegraph-showincamera";
+
 export default class FullscreenViewportDisplayMode extends SplittingViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
     const cam = nav.camera();
@@ -32,3 +37,7 @@ export default class FullscreenViewportDisplayMode extends SplittingViewportDisp
     return needsUpdate;
   }
 }
+
+export const navportFullscreen = (navport: Navport) => {
+  navport.setDisplayMode(new FullscreenViewportDisplayMode());
+

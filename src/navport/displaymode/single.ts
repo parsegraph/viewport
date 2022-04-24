@@ -4,7 +4,7 @@ import Navport from "../Navport";
 import { BasicGLProvider } from "parsegraph-compileprogram";
 import MenulessViewportDisplayMode from "./menuless";
 
-export class SingleScreenViewportDisplayMode extends MenulessViewportDisplayMode {
+export default class SingleScreenViewportDisplayMode extends MenulessViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
     const viewport = nav;
     const cam = viewport.camera();
@@ -27,3 +27,7 @@ export class SingleScreenViewportDisplayMode extends MenulessViewportDisplayMode
     return needsUpdate;
   }
 }
+
+export const navportSingle = (navport: Navport) => {
+  navport.setDisplayMode(new SingleScreenViewportDisplayMode());
+};

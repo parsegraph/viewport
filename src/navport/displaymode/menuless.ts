@@ -1,3 +1,6 @@
+import Navport, { ViewportDisplayMode } from "../Navport";
+import { Projector } from "parsegraph-projector";
+
 export default abstract class MenulessViewportDisplayMode
   implements ViewportDisplayMode
 {

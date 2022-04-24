@@ -1,15 +1,12 @@
 import Viewport from ".";
 
-import TimingBelt from "parsegraph-timingbelt";
-import { Projection, BasicProjector } from "parsegraph-projector";
 import Direction from "parsegraph-direction";
 
 import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
 import Carousel, { ActionCarousel } from "parsegraph-carousel";
 import Color from "parsegraph-color";
-
-// import Freezer from "../freezer/Freezer";
+import render from "./render";
 
 const buildGraph = (carousel: Carousel) => {
   const car = new DirectionCaret<Block>("u", new DefaultBlockPalette());
@@ -32,7 +29,7 @@ const buildGraph = (carousel: Carousel) => {
     car.node().value().setLabel("No time");
     const ac = new ActionCarousel(carousel);
 
-    const editLabel = new DefaultBlockPalette().spawn("b");
+    const editLabel = car.palette().spawn("b");
     editLabel.value().setLabel("Edit");
     const bStyle = copyStyle("b");
     bStyle.backgroundColor = new Color(1, 1, 1, 1);
@@ -51,7 +48,6 @@ const buildGraph = (carousel: Carousel) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const belt = new TimingBelt();
   const comp = new Viewport();
   const root = buildGraph(comp.carousel());
   comp.setRoot(root);
@@ -59,11 +55,5 @@ document.addEventListener("DOMContentLoaded", () => {
     alert(cmd);
   });
 
-  const projector = new BasicProjector();
-  document.getElementById("demo").appendChild(projector.container());
-  new ResizeObserver(() => {
-    belt.scheduleUpdate();
-  }).observe(projector.container());
-  const proj = new Projection(projector, comp);
-  belt.addRenderable(proj);
+  render(document.getElementById("demo"), comp);
 });

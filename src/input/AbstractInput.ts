@@ -27,8 +27,10 @@ export default abstract class AbstractInput<Controller> {
   }
 
   unmount() {
-    this._unmount();
-    this._unmount = null;
+    if (this._unmount) {
+      this._unmount();
+      this._unmount = null;
+    }
     this._container = null;
   }
 }

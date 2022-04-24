@@ -38,7 +38,7 @@ export default class Navport implements Projected {
   _unmount: () => void;
 
   constructor(
-    displayMode: ViewportDisplayMode,
+    displayMode?: ViewportDisplayMode,
     root?: PaintedNode,
     backgroundColor: Color = new Color(0, 0, 0, 1)
   ) {
@@ -63,6 +63,8 @@ export default class Navport implements Projected {
     this._needsRender = true;
 
     this._focusScale = FOCUS_SCALE;
+
+    this._unmount = null;
   }
 
   lastMouseX() {
@@ -131,7 +133,7 @@ export default class Navport implements Projected {
 
   dispose() {
     this._menu.dispose();
-    if (this._unmount) {
+    if (this._unmount !== null) {
       this._unmount();
       this._unmount = null;
     }
@@ -305,7 +307,7 @@ export default class Navport implements Projected {
 
   render(projector: Projector): boolean {
     // width: number, height: number, avoidIfPossible: boolean): boolean {
-    let needsUpdate = this._displayMode.render(projector, this);
+    let needsUpdate = this._displayMode?.render(projector, this);
 
     this.renderBackground(projector);
     const overlay = projector.overlay();
@@ -352,7 +354,7 @@ export default class Navport implements Projected {
     }
     if (
       !projector.isOffscreen() &&
-      this._displayMode.showMenu(projector, this)
+      this._displayMode?.showMenu(projector, this)
     ) {
       this._menu.paint(inputProj);
       this._menu.render(inputProj);

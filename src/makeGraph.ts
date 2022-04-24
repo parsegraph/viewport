@@ -1,0 +1,4 @@
+
+const makeGraph = ()=>PaintedNode {
+
+}
