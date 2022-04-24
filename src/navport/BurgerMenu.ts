@@ -3,7 +3,7 @@ import { matrixMultiply3x3I, makeTranslation3x3 } from "parsegraph-matrix";
 import rainbackMenu from "./rainback-menu-icons.png";
 import Navport from "./Navport";
 import { Projector } from "parsegraph-projector";
-import Method from 'parsegraph-method';
+import Method from "parsegraph-method";
 
 const MENU_ICON_TEXTURE_SIZE = 32;
 const MENU_ICON_SIZE = 32;
@@ -69,7 +69,7 @@ class BurgerMenuScene {
 
     this._search = document.createElement("form");
     this._search.style.display = "none";
-    this._search.addEventListener("submit", e=>{
+    this._search.addEventListener("submit", (e) => {
       e.preventDefault();
       if (!menu.search(input.value)) {
         input.value = "";
@@ -179,12 +179,10 @@ class BurgerMenuScene {
       return;
     }
     if (this.menu().opened()) {
-      this._search.style.left = (this.projector().width() / 2 + MENU_ICON_SIZE) + "px";
+      this._search.style.left =
+        this.projector().width() / 2 + MENU_ICON_SIZE + "px";
       this._search.style.bottom =
-        this.projector().height() -
-        6 -
-        1.5 * MENU_ICON_PADDING +
-        "px";
+        this.projector().height() - 6 - 1.5 * MENU_ICON_PADDING + "px";
     }
     const world = this.menu().viewport().camera().projectionMatrix();
     matrixMultiply3x3I(
@@ -212,9 +210,9 @@ export default class BurgerMenu {
   _menuHovered: MenuIcon;
   _iconLocations: BurgerMenuLocation[];
   _showSplit: boolean;
-  _undoAction:Method;
-  _redoAction:Method;
-  _searchCallback:Method;
+  _undoAction: Method;
+  _redoAction: Method;
+  _searchCallback: Method;
   _searchPlaceholder: string;
 
   viewport() {
@@ -252,16 +250,16 @@ export default class BurgerMenu {
     this._searchPlaceholder = "Search";
   }
 
-  search(cmd: string):boolean {
+  search(cmd: string): boolean {
     return this._searchCallback.call(cmd);
   }
 
-  setSearchPlaceholder(text:string) {
+  setSearchPlaceholder(text: string) {
     this._searchPlaceholder = text;
     this.scheduleRepaint();
   }
 
-  setSearchCallback(cb:Function, obj?: object) {
+  setSearchCallback(cb: Function, obj?: object) {
     this._searchCallback.set(cb, obj);
   }
 
@@ -269,11 +267,11 @@ export default class BurgerMenu {
     return this._searchPlaceholder;
   }
 
-  setRedoAction(cb:Function, obj?: object) {
+  setRedoAction(cb: Function, obj?: object) {
     this._redoAction.set(cb, obj);
   }
 
-  setUndoAction(cb:Function, obj?: object) {
+  setUndoAction(cb: Function, obj?: object) {
     this._undoAction.set(cb, obj);
   }
 
