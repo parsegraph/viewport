@@ -64,6 +64,7 @@
     "parsegraph-lerp": "^1.5.9",
     "parsegraph-matrix": "^1.4.11",
     "parsegraph-method": "^1.4.22",
+    "parsegraph-normalizewheel": "^1.4.7",
     "parsegraph-projector": "^1.13.2",
     "parsegraph-scene": "^2.2.1",
     "parsegraph-showincamera": "^1.7.1",
