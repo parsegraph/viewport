@@ -104,7 +104,7 @@ export default class NavportImpulse {
     if (dir === Direction.NULL) {
       return false;
     }
-    if (this.moveFocus(dir)) {
+    if (this.nav().input().cursor().moveFocus(dir)) {
       this._horizontalImpulse *= DECAY;
       this._verticalImpulse *= DECAY;
       return true;

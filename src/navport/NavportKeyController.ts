@@ -129,6 +129,10 @@ export default class NavportKeyController implements KeyController {
     return false;
   }
 
+  clearImpulse() {
+    this.nav().input().impulse().clearImpulse();
+  }
+
   focusMovementNavKey(event: Keystroke): boolean {
     switch (event.name()) {
       case MOVE_BACKWARD_KEY:
@@ -293,7 +297,7 @@ export default class NavportKeyController implements KeyController {
     let needsUpdate = false;
 
     if (this.getKey(RESET_CAMERA_KEY)) {
-      this.resetCamera(false);
+      this.nav().input().resetCamera(false);
       needsUpdate = true;
     }
 

@@ -40,4 +40,4 @@ export default class FullscreenViewportDisplayMode extends SplittingViewportDisp
 
 export const navportFullscreen = (navport: Navport) => {
   navport.setDisplayMode(new FullscreenViewportDisplayMode());
-
+};
