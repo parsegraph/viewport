@@ -20,13 +20,7 @@ SCRIPT_FILES = \
 	src/navport/InputController.ts \
 	src/render.ts \
 	src/showGraph.ts \
-	src/input/AbstractMouseController.ts \
-	src/input/TouchInput.ts \
-	src/input/MouseInput.ts \
-	src/input/KeyInput.ts \
-	src/input/FocusInput.ts \
-	src/input/addListeners.ts \
-	src/input/AbstractInput.ts \
+	src/png.d.ts \
 	src/demo.ts \
 	test/test.ts
 
