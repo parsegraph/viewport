@@ -8,6 +8,7 @@ import { PaintedNode } from "parsegraph-artist";
 import Method from "parsegraph-method";
 import Color from "parsegraph-color";
 import { GraphPainter } from "parsegraph-graphpainter";
+import FullscreenViewportDisplayMode from "./displaymode/fullscreen";
 
 export const FOCUS_SCALE = 2;
 
@@ -38,7 +39,7 @@ export default class Navport implements Projected {
   _unmount: () => void;
 
   constructor(
-    displayMode?: ViewportDisplayMode,
+    displayMode: ViewportDisplayMode = new FullscreenViewportDisplayMode(),
     root?: PaintedNode,
     backgroundColor: Color = new Color(0, 0, 0, 1)
   ) {
