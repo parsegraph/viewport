@@ -11,7 +11,7 @@ export interface KeyController {
 
 export default class KeyInput extends AbstractInput<KeyController> {
   addListeners(container: HTMLElement) {
-    return addListeners(container, [
+    return addListeners(this, container, [
       ["keydown", this.keydownListener],
       ["keyup", this.keyupListener],
     ]);

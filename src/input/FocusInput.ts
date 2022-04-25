@@ -10,7 +10,7 @@ export interface FocusController {
 export default class FocusInput extends AbstractInput<FocusController> {
   addListeners(container: HTMLElement): () => void {
     container.setAttribute("tabIndex", "0");
-    return addListeners(container, [
+    return addListeners(this, container, [
       ["blur", this.blur],
       ["focus", this.focus],
     ]);

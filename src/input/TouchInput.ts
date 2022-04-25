@@ -20,7 +20,7 @@ export default class TouchInput extends AbstractInput<MouseController> {
 
   addListeners(container: HTMLElement): () => void {
     container.setAttribute("tabIndex", "0");
-    return addListeners(container, [
+    return addListeners(this, container, [
       ["touchstart", this.touchstartListener],
       ["touchmove", this.touchmoveListener],
       ["touchend", this.removeTouchListener],

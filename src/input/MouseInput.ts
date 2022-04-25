@@ -26,7 +26,7 @@ export default class MouseInput extends AbstractInput<MouseController> {
 
   addListeners(container: HTMLElement): () => void {
     container.style.pointerEvents = "auto";
-    return addListeners(container, [
+    return addListeners(this, container, [
       ["DOMMouseScroll", this.onWheel],
       ["mousewheel", this.onWheel],
       ["mousedown", this.mousedownListener],
