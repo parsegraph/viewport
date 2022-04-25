@@ -1,6 +1,6 @@
-import { TimeoutTimer } from "parsegraph-timing";
+// import { TimeoutTimer } from "parsegraph-timing";
 import { makeInverse3x3, matrixTransform2D } from "parsegraph-matrix";
-import BasicMouseController from "../input/AbstractMouseController";
+import { BasicMouseController } from "parsegraph-input";
 import Navport from "./Navport";
 import {
   getMouseImpulseAdjustment,

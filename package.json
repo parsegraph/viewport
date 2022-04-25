@@ -60,7 +60,7 @@
     "parsegraph-direction": "^2.1.0",
     "parsegraph-fuzzyequals": "^1.4.9",
     "parsegraph-graphpainter": "^2.4.0",
-    "parsegraph-input": "^2.0.0",
+    "parsegraph-input": "2.0.2",
     "parsegraph-lerp": "^1.5.9",
     "parsegraph-matrix": "^1.4.11",
     "parsegraph-method": "^1.4.22",

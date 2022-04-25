@@ -5086,18 +5086,18 @@ parsegraph-graphpainter@^2.4.0:
     parsegraph-timing "^1.4.16"
     parsegraph-timingbelt "^1.7.11"
 
-parsegraph-input@^1.6.5:
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-1.6.5.tgz#de20ed68ee53b1a5d3c4c2d36f801a8ae4796d91"
-  integrity sha512-UeWZnTOHaGCV5LVaRM15RfRDOpJ062E6/DAszlfOoLH00xmkQncj4OqBkHHA7+YUNIZ2Got68gKWacYRR42y2Q==
+parsegraph-input@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-2.0.2.tgz#509173c3f0cb84301535c95e68aaf2153c944470"
+  integrity sha512-e/jLs/xU9YVS4pO3c32w3R4N9E6v9+ili+uHgrQz9tJHo6c+ZgxrYcq+C1Iy0sA73vTLlb3q9whXsgVuTtrOQQ==
   dependencies:
     parsegraph-matrix "^1.4.11"
     parsegraph-normalizewheel "^1.4.7"
 
-parsegraph-input@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-2.0.0.tgz#4598ec66f412d01003dae4b18671aef03a7a8963"
-  integrity sha512-oWz3Nca4MwnNlFAXu9JGgtKz1u96AuODko+GDeqA/TIn5VI+y+xmvgS7Jz2W8I3f660OBXKvnS9vr2EYKnO5TQ==
+parsegraph-input@^1.6.5:
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-1.6.5.tgz#de20ed68ee53b1a5d3c4c2d36f801a8ae4796d91"
+  integrity sha512-UeWZnTOHaGCV5LVaRM15RfRDOpJ062E6/DAszlfOoLH00xmkQncj4OqBkHHA7+YUNIZ2Got68gKWacYRR42y2Q==
   dependencies:
     parsegraph-matrix "^1.4.11"
     parsegraph-normalizewheel "^1.4.7"

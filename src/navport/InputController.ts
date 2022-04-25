@@ -3,10 +3,7 @@ import { PaintedNode } from "parsegraph-artist";
 import Navport from "./Navport";
 import { Projector } from "parsegraph-projector";
 
-import FocusInput from "../input/FocusInput";
-import TouchInput from "../input/TouchInput";
-import MouseInput from "../input/MouseInput";
-import KeyInput from "../input/KeyInput";
+import { FocusInput, TouchInput, MouseInput, KeyInput } from "parsegraph-input";
 import NavportCursor from "./NavportCursor";
 import NavportKeyController from "./NavportKeyController";
 import NavportMouseController from "./NavportMouseController";
