@@ -18,9 +18,6 @@ export const INPUT_LAYOUT_TIME = INTERVAL;
 export const WHEEL_MOVES_FOCUS = false;
 
 export default class NavportMouseController extends BasicMouseController {
-  _mousedownTime: number;
-  _mouseupTimeout: TimeoutTimer;
-  _clicksDetected: number;
   _attachedMouseListener: Function;
   _mouseVersion: number;
   _mousePos: [number, number];
@@ -30,11 +27,6 @@ export default class NavportMouseController extends BasicMouseController {
   constructor(nav: Navport) {
     super();
     this._mousePos = [0, 0];
-    this._mousedownTime = null;
-    this._mouseupTimeout = new TimeoutTimer();
-    this._mouseupTimeout.setListener(this.afterMouseTimeout, this);
-    this._mouseupTimeout.setDelay(CLICK_DELAY_MILLIS);
-    this._clicksDetected = 0;
     this._mouseVersion = 0;
     this._nav = nav;
     this._clickedNode = null;
@@ -79,41 +71,44 @@ export default class NavportMouseController extends BasicMouseController {
     if (
       this.nav()
         .menu()
-        .onMousedown(this.nav().lastMouseX(), this.nav().lastMouseY())
+        .onMousedown(this.lastMouseX(), this.lastMouseY())
     ) {
-      // console.log("Menu click processed.");
       return true;
     }
 
-    const mouseInWorld = matrixTransform2D(
-      makeInverse3x3(this.nav().camera().worldMatrix()),
-      this.nav().lastMouseX(),
-      this.nav().lastMouseY()
+    let mouseInWorld = matrixTransform2D(
+      makeInverse3x3(this.carousel().camera().worldMatrix()),
+      this.lastMouseX(),
+      this.lastMouseY()
     );
     this.mouseChanged();
 
-    if (
-      this.nav()
-        .carousel()
-        .clickCarousel(mouseInWorld[0], mouseInWorld[1], true)
-    ) {
-      // console.log("Carousel click processed.");
-      return true;
-    }
-
-    if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
-      // console.log("Node clicked.");
-      // return true;
-      this.savePos(mouseInWorld[0], mouseInWorld[1]);
-      this.nav().input().cursor().spotlight().dispose();
-      if (!this._mousedownTime) {
-        // console.log("Checking for node");
-        this._mousedownTime = Date.now();
+    if (this.nav().carousel().isCarouselShown()) {
+      if (this.nav()
+          .carousel()
+          .clickCarousel(mouseInWorld[0], mouseInWorld[1], true)
+      ) {
+        return true;
+      } else {
+        this.nav().carousel().hideCarousel();
+        this.nav().carousel().scheduleCarouselRepaint();
+        return true;
       }
     }
 
+    mouseInWorld = matrixTransform2D(
+      makeInverse3x3(this.nav().camera().worldMatrix()),
+      this.lastMouseX(),
+      this.lastMouseY()
+    );
+
+    if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
+      // return true;
+      this.savePos(mouseInWorld[0], mouseInWorld[1]);
+      this.nav().input().cursor().spotlight().dispose();
+    }
+
     this._attachedMouseListener = this.mouseDragListener;
-    // console.log("Repainting graph");
     return true;
   }
 
@@ -137,7 +132,6 @@ export default class NavportMouseController extends BasicMouseController {
         mouseInWorld[0],
         mouseInWorld[1]
       );
-      console.log(mouseInWorld[0], mouseInWorld[1], overClickable);
       switch (overClickable) {
         case 2:
           this._nav.setCursor("pointer");
@@ -176,7 +170,6 @@ export default class NavportMouseController extends BasicMouseController {
         .getLayout()
         .commitLayoutIteratively(INPUT_LAYOUT_TIME)
     ) {
-      // console.log("Couldn't commit layout in time");
       overClickable = 1;
     } else {
       /* overClickable = this._nav
@@ -190,7 +183,6 @@ export default class NavportMouseController extends BasicMouseController {
         this._nav.setCursor("pointer");
         break;
       case 1:
-        // console.log("World not ready");
         break;
       case 0:
         this._nav.setCursor("auto");
@@ -251,32 +243,20 @@ export default class NavportMouseController extends BasicMouseController {
   }
 
   afterMouseTimeout() {
-    // Cancel the timer if we have found a double click
-    this._mouseupTimeout.cancel();
-
     const selectedNode = this.focusedNode();
     if (selectedNode) {
-      if (this._clicksDetected >= 2) {
-        // Double click ended.
-        this.nav().showInCamera(selectedNode);
-      } else if (this._clicksDetected > 0) {
-        // Check if the selected node has a click listener.
-        if (this._clickedNode === selectedNode) {
-          if (selectedNode.value().interact().hasClickListener()) {
-            // console.log("Selected Node has click listener", selectedNode);
-            if (selectedNode.value().interact().click()) {
-              this._clickedNode = null;
-            }
-            this.scheduleRepaint();
+      // Check if the selected node has a click listener.
+      if (this._clickedNode === selectedNode) {
+        if (selectedNode.value().interact().hasClickListener()) {
+          if (selectedNode.value().interact().click()) {
+            this._clickedNode = null;
           }
-        } else {
-          this._clickedNode = selectedNode;
+          this.scheduleRepaint();
         }
+      } else {
+        this._clickedNode = selectedNode;
       }
     }
-
-    this._clicksDetected = 0;
-    this._mousedownTime = null;
   }
 
   mouseup(button: any) {
@@ -291,6 +271,10 @@ export default class NavportMouseController extends BasicMouseController {
     if (
       this.carousel().clickCarousel(mouseInWorld[0], mouseInWorld[1], false)
     ) {
+      return true;
+    } else if (this.carousel().isCarouselShown()) {
+      this.nav().carousel().hideCarousel();
+      this.nav().carousel().scheduleCarouselRepaint();
       return true;
     }
     if (!this._attachedMouseListener) {
@@ -309,19 +293,7 @@ export default class NavportMouseController extends BasicMouseController {
       return true;
     }
 
-    if (
-      this._mousedownTime != null &&
-      Date.now() - this._mousedownTime < CLICK_DELAY_MILLIS
-    ) {
-      ++this._clicksDetected;
-      if (this._clicksDetected === 2) {
-        this.afterMouseTimeout();
-        return true;
-      }
-      this._mouseupTimeout.schedule();
-    } else {
-      // console.log("Click missed timeout");
-    }
+    this.afterMouseTimeout();
     return false;
   }
 

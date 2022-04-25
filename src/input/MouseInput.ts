@@ -13,17 +13,6 @@ export interface MouseController extends FocusController {
 }
 
 export default class MouseInput extends AbstractInput<MouseController> {
-  _mousedownTime: number;
-  _isDoubleClick: boolean;
-  _mouseupTimeout: number;
-
-  constructor() {
-    super();
-    this._isDoubleClick = false;
-    this._mouseupTimeout = 0;
-    this._mousedownTime = NaN;
-  }
-
   addListeners(container: HTMLElement): () => void {
     container.style.pointerEvents = "auto";
     return addListeners(this, container, [
@@ -60,22 +49,10 @@ export default class MouseInput extends AbstractInput<MouseController> {
   }
 
   mousedownListener(event: MouseEvent) {
-    this.control().focus();
-
-    this._mousedownTime = Date.now();
-
-    if (this.control().mousedown(event.button, this._mousedownTime)) {
+    if (this.control().mousedown(event.button, Date.now())) {
       event.preventDefault();
       event.stopPropagation();
       this.container().focus();
-    }
-
-    // This click is a second click following
-    // a recent click; it's a double-click.
-    if (this._mouseupTimeout) {
-      clearTimeout(this._mouseupTimeout);
-      this._mouseupTimeout = null;
-      this._isDoubleClick = true;
     }
   }
 }
