@@ -1,7 +1,7 @@
 import SplittingViewportDisplayMode from "./split";
-import {Projector} from 'parsegraph-projector';
+import { Projector } from "parsegraph-projector";
 import Navport from "../Navport";
-import {showInCamera} from "parsegraph-showincamera";
+import { showInCamera } from "parsegraph-showincamera";
 
 export default class FullscreenViewportDisplayMode extends SplittingViewportDisplayMode {
   render(proj: Projector, nav: Navport) {
