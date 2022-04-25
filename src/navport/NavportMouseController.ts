@@ -1,5 +1,4 @@
 import { TimeoutTimer } from "parsegraph-timing";
-import { CLICK_DELAY_MILLIS } from "parsegraph-input";
 import { makeInverse3x3, matrixTransform2D } from "parsegraph-matrix";
 import BasicMouseController from "../input/AbstractMouseController";
 import Navport from "./Navport";
@@ -68,11 +67,7 @@ export default class NavportMouseController extends BasicMouseController {
   mousedown(button: any, downStart: number): boolean {
     super.mousedown(button, downStart);
 
-    if (
-      this.nav()
-        .menu()
-        .onMousedown(this.lastMouseX(), this.lastMouseY())
-    ) {
+    if (this.nav().menu().onMousedown(this.lastMouseX(), this.lastMouseY())) {
       return true;
     }
 
@@ -84,7 +79,8 @@ export default class NavportMouseController extends BasicMouseController {
     this.mouseChanged();
 
     if (this.nav().carousel().isCarouselShown()) {
-      if (this.nav()
+      if (
+        this.nav()
           .carousel()
           .clickCarousel(mouseInWorld[0], mouseInWorld[1], true)
       ) {
