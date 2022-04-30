@@ -80,6 +80,7 @@ export default class InputController {
   _cursor: NavportCursor;
   _key: NavportKeyController;
   _mouse: NavportMouseController;
+  _showCursor: boolean;
 
   _inputs: Map<Projector, Input>;
 
@@ -90,6 +91,7 @@ export default class InputController {
     this._inputs = new Map();
 
     this._cursor = new NavportCursor(nav);
+    this._showCursor = true;
 
     this._key = new NavportKeyController(this._cursor);
     this._mouse = new NavportMouseController(nav);
@@ -203,6 +205,17 @@ export default class InputController {
   }
 
   render(proj: Projector) {
+    if (!this.showCursor()) {
+      return false;
+    }
     return this._cursor.render(proj);
+  }
+
+  showCursor() {
+    return this._showCursor;
+  }
+
+  setShowCursor(showCursor: boolean):void {
+    this._showCursor = showCursor;
   }
 }
