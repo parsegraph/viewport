@@ -4068,7 +4068,7 @@ parsegraph-block@^4.4.11:
     parsegraph-timing "^1.4.16"
     parsegraph-timingbelt "^1.7.11"
 
-parsegraph-block@^4.4.14, parsegraph-block@^4.4.15:
+parsegraph-block@^4.4.15:
   version "4.4.15"
   resolved "https://registry.yarnpkg.com/parsegraph-block/-/parsegraph-block-4.4.15.tgz#1a1244fbd4c502d7ced36096e18b91956c6a65b0"
   integrity sha512-caw2TVGHc11yk2DdYcSN+Hsv6KAwFNHuLOLihWdxlciMiLvTIlPBgfkrYjRScSPWDN3ZyNODVoIaSWF7p4cwdA==
@@ -4119,13 +4119,13 @@ parsegraph-camera@^1.4.18:
     parsegraph-matrix "^1.4.12"
     parsegraph-rect "^1.5.1"
 
-parsegraph-carousel@^2.3.22:
-  version "2.3.22"
-  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.22.tgz#a16f43accbfdfb209c22f8cbc618b0f35262277a"
-  integrity sha512-mNWlVbciz+vOucNfzqb8EOWceaPtZHmP0EXEATH1qas4rojj6nPncXbVpKUheiwt1Fgx8sAiEN0DKSixmJA91w==
+parsegraph-carousel@^2.3.23:
+  version "2.3.23"
+  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.23.tgz#40dce707b7524c9cefdfd68178b39f52b88bc369"
+  integrity sha512-fru57zGfVQeMHaAbowQn19MWvGFFNlzw1CzymjwLKPjMjoltGLgBRmg5ZTcLB+cg1GlzzsJUB7qwnJEzQlFphQ==
   dependencies:
     parsegraph-artist "^3.4.22"
-    parsegraph-block "^4.4.14"
+    parsegraph-block "^4.4.15"
     parsegraph-camera "^1.4.18"
     parsegraph-color "^1.4.7"
     parsegraph-fanpainter "^1.6.12"
