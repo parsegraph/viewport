@@ -1,6 +1,6 @@
 {
   "name": "parsegraph-viewport",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "viewport",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
