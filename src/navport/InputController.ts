@@ -205,17 +205,6 @@ export default class InputController {
   }
 
   render(proj: Projector) {
-    if (!this.showCursor()) {
-      return false;
-    }
     return this._cursor.render(proj);
-  }
-
-  showCursor() {
-    return this._showCursor;
-  }
-
-  setShowCursor(showCursor: boolean):void {
-    this._showCursor = showCursor;
   }
 }

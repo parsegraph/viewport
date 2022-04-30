@@ -8,12 +8,26 @@ export default class NavportCursor {
   _focusedNode: PaintedNode;
   _nav: Navport;
   _spotlight: AnimatedSpotlight;
+  _showSpotlight: boolean;
 
   constructor(navport: Navport) {
     this._nav = navport;
     this._focusedNode = null;
 
     this._spotlight = new AnimatedSpotlight();
+    this._showSpotlight = false;
+  }
+
+  showSpotlight() {
+    this._showSpotlight = true;
+  }
+
+  hideSpotlight() {
+    this._showSpotlight = false;
+  }
+
+  isSpotlightShown() {
+    return this._showSpotlight;
   }
 
   spotlight() {
@@ -165,7 +179,7 @@ export default class NavportCursor {
         );
       proj.overlay().restore();
     }
-    if (this._spotlight) {
+    if (this.isSpotlightShown()) {
       gl.enable(gl.BLEND);
       this._spotlight.setWorldTransform(this.camera().project());
       return this._spotlight.render(proj);

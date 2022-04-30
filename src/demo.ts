@@ -1,4 +1,4 @@
-import Viewport from ".";
+import Navport from ".";
 
 import Direction from "parsegraph-direction";
 
@@ -48,7 +48,7 @@ const buildGraph = (carousel: Carousel) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const comp = new Viewport();
+  const comp = new Navport();
   const root = buildGraph(comp.carousel());
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
