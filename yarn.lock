@@ -4234,10 +4234,22 @@ parsegraph-pagingbuffer@^2.1.3:
   resolved "https://registry.yarnpkg.com/parsegraph-pagingbuffer/-/parsegraph-pagingbuffer-2.1.3.tgz#6a3a3802ae22a58b143020b7684ce3b193f9c5e2"
   integrity sha512-Ag0DFMqf57CuQ7y03Z5Ps9NugLx3pau/EeqiCLE9vt2kQ2dQagQ4wbKpm9YyRmgMlXtAu1K6vg2pPriSv1ycoQ==
 
-parsegraph-projector@^1.13.2, parsegraph-projector@^1.13.6, parsegraph-projector@^1.13.7:
+parsegraph-projector@^1.13.2, parsegraph-projector@^1.13.6:
   version "1.13.7"
   resolved "https://registry.yarnpkg.com/parsegraph-projector/-/parsegraph-projector-1.13.7.tgz#9d3ebe30ee9c9da9b0841ebb23af0d16f4e8718c"
   integrity sha512-sl20KzsaFW3i4b0JPaC+9NzlxX2RlGouFOnKYv4Ovv7+VmJThbjgxP1TKRuRRjvdY/+UFogPfQTvLmihIN+5uA==
+  dependencies:
+    parsegraph-compileprogram "^2.2.15"
+    parsegraph-matrix "^1.4.12"
+    parsegraph-method "^1.4.10"
+    parsegraph-rect "^1.5.1"
+    parsegraph-timing "^1.4.16"
+    parsegraph-timingbelt "^1.7.11"
+
+parsegraph-projector@^1.13.7:
+  version "1.13.8"
+  resolved "https://registry.yarnpkg.com/parsegraph-projector/-/parsegraph-projector-1.13.8.tgz#066b59de51c7acf36b828e47c8d5c56dce2a5498"
+  integrity sha512-YkrkE78YtQbJzyXJQNW/Z2i29+NbJd+uOC/TnX1o/sxjFQKEKDQHa/rqZDdLagEiOaZmkMc0jKwK3Eg5CbmnUA==
   dependencies:
     parsegraph-compileprogram "^2.2.15"
     parsegraph-matrix "^1.4.12"
