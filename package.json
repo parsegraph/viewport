@@ -51,5 +51,28 @@
     "parsegraph-checkglerror": "^1.5.3",
     "parsegraph-log": "^1.7.3",
     "webgl-debug": "^2.0.1"
+  },
+  "dependencies": {
+    "parsegraph-animatedspotlight": "^2.0.28",
+    "parsegraph-animator": "^1.5.8",
+    "parsegraph-artist": "^3.4.11",
+    "parsegraph-block": "^4.4.4",
+    "parsegraph-camera": "^1.4.17",
+    "parsegraph-carousel": "^2.3.5",
+    "parsegraph-color": "^1.4.7",
+    "parsegraph-compileprogram": "^2.2.14",
+    "parsegraph-direction": "^2.1.0",
+    "parsegraph-fuzzyequals": "^1.4.9",
+    "parsegraph-graphpainter": "^2.4.7",
+    "parsegraph-input": "^2.0.3",
+    "parsegraph-lerp": "^1.5.9",
+    "parsegraph-matrix": "^1.4.12",
+    "parsegraph-method": "^1.4.22",
+    "parsegraph-projector": "^1.13.5",
+    "parsegraph-showincamera": "^1.7.3",
+    "parsegraph-smoothstep": "^1.4.5",
+    "parsegraph-texturepainter": "^1.6.10",
+    "parsegraph-timing": "^1.4.16",
+    "parsegraph-timingbelt": "^1.7.11"
   }
 }
