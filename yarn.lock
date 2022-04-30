@@ -4119,10 +4119,10 @@ parsegraph-camera@^1.4.18:
     parsegraph-matrix "^1.4.12"
     parsegraph-rect "^1.5.1"
 
-parsegraph-carousel@^2.3.23:
-  version "2.3.23"
-  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.23.tgz#40dce707b7524c9cefdfd68178b39f52b88bc369"
-  integrity sha512-fru57zGfVQeMHaAbowQn19MWvGFFNlzw1CzymjwLKPjMjoltGLgBRmg5ZTcLB+cg1GlzzsJUB7qwnJEzQlFphQ==
+parsegraph-carousel@^2.3.24:
+  version "2.3.24"
+  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.24.tgz#ffa9388ca20a36ff59a1fbd468b2c7f9005d6638"
+  integrity sha512-+EAV7yu5PAVlo1j8ZHxTeiPj9/u5qLCpMr/ctue+dZ+C8PjQeKQXezLF8zqe0qaXjx+V5fqqxOc3DMXGLxTdjg==
   dependencies:
     parsegraph-artist "^3.4.22"
     parsegraph-block "^4.4.15"
