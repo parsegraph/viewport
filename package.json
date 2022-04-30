@@ -54,10 +54,10 @@
   "dependencies": {
     "parsegraph-animatedspotlight": "^2.0.36",
     "parsegraph-animator": "^1.5.8",
-    "parsegraph-artist": "^3.4.21",
+    "parsegraph-artist": "^3.4.22",
     "parsegraph-block": "^4.4.12",
     "parsegraph-camera": "^1.4.18",
-    "parsegraph-carousel": "^2.3.20",
+    "parsegraph-carousel": "^2.3.21",
     "parsegraph-color": "^1.4.7",
     "parsegraph-compileprogram": "^2.2.15",
     "parsegraph-direction": "^2.1.0",

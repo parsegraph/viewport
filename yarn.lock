@@ -4028,6 +4028,26 @@ parsegraph-artist@^3.4.20, parsegraph-artist@^3.4.21:
     parsegraph-timing "^1.4.16"
     parsegraph-timingbelt "^1.7.11"
 
+parsegraph-artist@^3.4.22:
+  version "3.4.22"
+  resolved "https://registry.yarnpkg.com/parsegraph-artist/-/parsegraph-artist-3.4.22.tgz#2389a736c1d72cb90556e53b2921d41a54fa7c24"
+  integrity sha512-HOu6uHyTDx9k+bdhvYvAAxdqmzqGBEWIOdvWjvnTytsY+XMY2fo4TKw/YKaNVazJvmwcZnRtE/JtsWgVOtSoTA==
+  dependencies:
+    parsegraph-camera "^1.4.18"
+    parsegraph-color "^1.4.7"
+    parsegraph-compileprogram "^2.2.15"
+    parsegraph-direction "^2.1.0"
+    parsegraph-interact "^1.6.9"
+    parsegraph-layout "^1.13.6"
+    parsegraph-matrix "^1.4.12"
+    parsegraph-method "^1.4.22"
+    parsegraph-projector "^1.14.0"
+    parsegraph-scene "^2.2.23"
+    parsegraph-showincamera "^1.7.4"
+    parsegraph-size "^1.7.1"
+    parsegraph-timing "^1.4.16"
+    parsegraph-timingbelt "^1.7.11"
+
 parsegraph-block@^4.4.11, parsegraph-block@^4.4.12:
   version "4.4.12"
   resolved "https://registry.yarnpkg.com/parsegraph-block/-/parsegraph-block-4.4.12.tgz#de5bdeebcefc734c3caa56a0bf3df399627a12d2"
@@ -4069,10 +4089,10 @@ parsegraph-camera@^1.4.18:
     parsegraph-matrix "^1.4.12"
     parsegraph-rect "^1.5.1"
 
-parsegraph-carousel@^2.3.20:
-  version "2.3.20"
-  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.20.tgz#8f1ee9e3fa2c7e1da7ee0e09e03ca5926f384a5e"
-  integrity sha512-diQ+GMRGNei2ZMhBYUqw2QAdHIvjH8EFkZk40EEqS0djoNwV+cfr3sOE0Pa8Fo0CclDeuNY9UkSvS+pZmt0PTQ==
+parsegraph-carousel@^2.3.21:
+  version "2.3.21"
+  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.21.tgz#1115260dbadc9efe77186e42cb9ebe795a95626a"
+  integrity sha512-P40qtU+0kzffkpbxsI4dq3hFEHHnmLtQ76YkDEVCVhJfYuYoYzTnfxbbY39WMsxHMwj2PHAVmD12d2tL8JDIKw==
   dependencies:
     parsegraph-artist "^3.4.21"
     parsegraph-block "^4.4.12"
@@ -4239,7 +4259,7 @@ parsegraph-rect@^1.5.1:
   resolved "https://registry.yarnpkg.com/parsegraph-rect/-/parsegraph-rect-1.5.1.tgz#ee95591098bacc34284f04969a73f5b851ddfdb4"
   integrity sha512-ScHgiKnEpvOKVbc0aIn0mMJSZoqCGkak1Nlud9oezvHLDsVsMcHUO6KzPiN1DNfLaqQGn+mNBvSf0B04OeFIYw==
 
-parsegraph-scene@^2.2.22:
+parsegraph-scene@^2.2.22, parsegraph-scene@^2.2.23:
   version "2.2.23"
   resolved "https://registry.yarnpkg.com/parsegraph-scene/-/parsegraph-scene-2.2.23.tgz#1ffabeac57c16c3bf7033573e34661948fbcad0e"
   integrity sha512-ykcyzvuxlWMp1SHvpse+37dTBO6rD6tQdWAwjcXsR7cxFf4IjiEOk4AHAX6qnvM1D50DKaPpRk/JbBRX5wp86A==
