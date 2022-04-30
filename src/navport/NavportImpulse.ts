@@ -39,7 +39,7 @@ export default class NavportImpulse {
   }
 
   clearImpulse() {
-    console.log("Clearing impulse");
+    //console.log("Clearing impulse");
     this._horizontalJerk = 0;
     this._verticalJerk = 0;
     this._horizontalImpulse = 0;
@@ -51,12 +51,12 @@ export default class NavportImpulse {
   }
 
   hasImpulse() {
-    console.log(
+    /*console.log(
       "Checking for impulse: " +
         this._horizontalImpulse +
         ", " +
         this._verticalImpulse
-    );
+    );*/
     return (
       !fuzzyEquals(this._horizontalImpulse, 0, minimum) ||
       !fuzzyEquals(this._verticalImpulse, 0, minimum)
