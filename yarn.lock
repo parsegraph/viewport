@@ -4293,10 +4293,23 @@ parsegraph-scene@^2.2.20:
     parsegraph-timing "^1.4.16"
     parsegraph-timingbelt "^1.7.11"
 
-parsegraph-scene@^2.2.22, parsegraph-scene@^2.2.3:
+parsegraph-scene@^2.2.22:
   version "2.2.22"
   resolved "https://registry.yarnpkg.com/parsegraph-scene/-/parsegraph-scene-2.2.22.tgz#518c40be9b3a2ac9cac334dbcda60a2f6d6cdbf1"
   integrity sha512-RTnrA7XYCbMFPbeujTWSYdV3GHCfteZDsuzxJ/zGkChpeslqcefuxCnDamuWRldL6N9wVRwmyFL/Zqy6wYEeIQ==
+  dependencies:
+    parsegraph-camera "^1.4.18"
+    parsegraph-layout "^1.13.6"
+    parsegraph-matrix "^1.4.12"
+    parsegraph-method "^1.4.22"
+    parsegraph-projector "^1.14.0"
+    parsegraph-timing "^1.4.16"
+    parsegraph-timingbelt "^1.7.11"
+
+parsegraph-scene@^2.2.3:
+  version "2.2.23"
+  resolved "https://registry.yarnpkg.com/parsegraph-scene/-/parsegraph-scene-2.2.23.tgz#1ffabeac57c16c3bf7033573e34661948fbcad0e"
+  integrity sha512-ykcyzvuxlWMp1SHvpse+37dTBO6rD6tQdWAwjcXsR7cxFf4IjiEOk4AHAX6qnvM1D50DKaPpRk/JbBRX5wp86A==
   dependencies:
     parsegraph-camera "^1.4.18"
     parsegraph-layout "^1.13.6"
