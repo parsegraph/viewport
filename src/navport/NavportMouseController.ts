@@ -16,7 +16,13 @@ export const INPUT_LAYOUT_TIME = INTERVAL;
 
 export const WHEEL_MOVES_FOCUS = false;
 
+export enum DefaultClickBehavior {
+  SHOW_ALL,
+  DO_NOTHING
+}
+
 export default class NavportMouseController extends BasicMouseController {
+  _defaultClick: DefaultClickBehavior;
   _attachedMouseListener: Function;
   _mouseVersion: number;
   _mousePos: [number, number];
@@ -29,6 +35,7 @@ export default class NavportMouseController extends BasicMouseController {
     this._mouseVersion = 0;
     this._nav = nav;
     this._clickedNode = null;
+    this._defaultClick = DefaultClickBehavior.DO_NOTHING;
   }
 
   nav() {
@@ -188,6 +195,14 @@ export default class NavportMouseController extends BasicMouseController {
     return true;
   }
 
+  defaultClickBehavior() {
+    return this._defaultClick;
+  }
+
+  setDefaultClickBehavior(behavior:DefaultClickBehavior) {
+    this._defaultClick = behavior;
+  }
+
   checkForNodeClick(x: number, y: number): boolean {
     if (
       this.nav()
@@ -206,28 +221,36 @@ export default class NavportMouseController extends BasicMouseController {
       .value()
       .getLayout()
       .nodeUnderCoords(x, y) as PaintedNode;
-    if (!selectedNode) {
-      logc("Mouse clicks", "No node found under coords:", x, y);
+
+    if (selectedNode) {
+      logc(
+        "Mouse clicks",
+        "Node {0} found for coords ({1}, {2})",
+        selectedNode,
+        x,
+        y
+      );
+
+      if (selectedNode !== this._clickedNode) {
+        this._clickedNode = null;
+      }
+      this.nav().input().cursor().setFocusedNode(selectedNode);
+
+      return true;
+    }
+
+    logc("Mouse clicks", "No node found under coords:", x, y);
+    switch(this.defaultClickBehavior()) {
+    case DefaultClickBehavior.SHOW_ALL:
       this._clickedNode = null;
       this.nav().input().cursor().setFocusedNode(null);
       this.nav().showInCamera(null);
       return false;
-    }
-
-    logc(
-      "Mouse clicks",
-      "Node {0} found for coords ({1}, {2})",
-      selectedNode,
-      x,
-      y
-    );
-
-    if (selectedNode !== this._clickedNode) {
+    default:
       this._clickedNode = null;
+      return false;
     }
-    this.nav().input().cursor().setFocusedNode(selectedNode);
-
-    return true;
+    return false;
   }
 
   focusedNode(): PaintedNode {
@@ -238,22 +261,6 @@ export default class NavportMouseController extends BasicMouseController {
     this.nav().scheduleRepaint();
   }
 
-  afterMouseTimeout() {
-    const selectedNode = this.focusedNode();
-    if (selectedNode) {
-      // Check if the selected node has a click listener.
-      if (this._clickedNode === selectedNode) {
-        if (selectedNode.value().interact().hasClickListener()) {
-          if (selectedNode.value().interact().click()) {
-            this._clickedNode = null;
-          }
-          this.scheduleRepaint();
-        }
-      } else {
-        this._clickedNode = selectedNode;
-      }
-    }
-  }
 
   mouseup(button: any) {
     super.mouseup(button);
@@ -289,7 +296,21 @@ export default class NavportMouseController extends BasicMouseController {
       return true;
     }
 
-    this.afterMouseTimeout();
+    const selectedNode = this.focusedNode();
+    if (selectedNode) {
+      // Check if the selected node has a click listener.
+      if (this._clickedNode === selectedNode) {
+        if (selectedNode.value().interact().hasClickListener()) {
+          if (selectedNode.value().interact().click()) {
+            this._clickedNode = null;
+          }
+          this.scheduleRepaint();
+        }
+      } else {
+        this._clickedNode = selectedNode;
+      }
+    }
+
     return false;
   }
 

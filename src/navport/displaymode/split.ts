@@ -14,6 +14,6 @@ export default abstract class SplittingViewportDisplayMode
   }
 
   showMenu(projector: Projector): boolean {
-    return projector.width() > MIN_MENU_THRESHOLD;
+    return false;//return projector.width() > MIN_MENU_THRESHOLD;
   }
 }
