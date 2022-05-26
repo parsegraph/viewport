@@ -10,7 +10,7 @@ export default class FullscreenViewportDisplayMode extends SplittingViewportDisp
     let needsUpdate = false;
     proj.glProvider().container().style.width = "100%";
     proj.glProvider().container().style.height = "100%";
-    if (nav.focusedNode()) {
+    if (nav.focusedNode() && nav.focusedNode().value()) {
       if (nav._cameraFilter.getRequiredScale() != nav.getRequiredScale()) {
         nav._cameraFilter.restart();
       } else if (
