@@ -75,6 +75,9 @@ export default class NavportCursor {
 
   moveForwardly(skipHorizontalInward?: boolean, event?: any): boolean {
     let node = this._focusedNode;
+    if (!node) {
+      return false;
+    }
     if (
       node.hasNode(Direction.INWARD) &&
       node.nodeAlignmentMode(Direction.INWARD) != Alignment.INWARD_VERTICAL &&

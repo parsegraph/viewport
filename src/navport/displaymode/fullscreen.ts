@@ -27,7 +27,7 @@ export default class FullscreenViewportDisplayMode extends SplittingViewportDisp
         nav.scheduleRender();
         needsUpdate = true;
       }
-    } else if(nav.root() && nav.root().value()) {
+    } else if (nav.root() && nav.root().value()) {
       const size = nav.root().value().getLayout().extentSize();
       if (size.width() > 0 && size.height() > 0) {
         showInCamera(nav.root(), cam, false);

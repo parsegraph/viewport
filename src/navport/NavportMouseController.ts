@@ -167,6 +167,8 @@ export default class NavportMouseController extends BasicMouseController {
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
     if (
+      !this._nav
+        .root() ||
       this._nav
         .root()
         .value()
@@ -205,6 +207,8 @@ export default class NavportMouseController extends BasicMouseController {
 
   checkForNodeClick(x: number, y: number): boolean {
     if (
+      !this.nav()
+        .root()?.value() ||
       this.nav()
         .root()
         .value()
@@ -218,8 +222,8 @@ export default class NavportMouseController extends BasicMouseController {
     }
     const selectedNode = this.nav()
       .root()
-      .value()
-      .getLayout()
+      ?.value()
+      ?.getLayout()
       .nodeUnderCoords(x, y) as PaintedNode;
 
     if (selectedNode) {
@@ -287,6 +291,8 @@ export default class NavportMouseController extends BasicMouseController {
     this.nav().input().impulse().resetImpulse();
 
     if (
+      !this.nav()
+        .root()?.value() ||
       this.nav()
         .root()
         .value()
