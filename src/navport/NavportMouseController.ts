@@ -18,7 +18,7 @@ export const WHEEL_MOVES_FOCUS = false;
 
 export enum DefaultClickBehavior {
   SHOW_ALL,
-  DO_NOTHING
+  DO_NOTHING,
 }
 
 export default class NavportMouseController extends BasicMouseController {
@@ -167,8 +167,7 @@ export default class NavportMouseController extends BasicMouseController {
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
     if (
-      !this._nav
-        .root() ||
+      !this._nav.root() ||
       this._nav
         .root()
         .value()
@@ -201,14 +200,13 @@ export default class NavportMouseController extends BasicMouseController {
     return this._defaultClick;
   }
 
-  setDefaultClickBehavior(behavior:DefaultClickBehavior) {
+  setDefaultClickBehavior(behavior: DefaultClickBehavior) {
     this._defaultClick = behavior;
   }
 
   checkForNodeClick(x: number, y: number): boolean {
     if (
-      !this.nav()
-        .root()?.value() ||
+      !this.nav().root()?.value() ||
       this.nav()
         .root()
         .value()
@@ -244,15 +242,15 @@ export default class NavportMouseController extends BasicMouseController {
     }
 
     logc("Mouse clicks", "No node found under coords:", x, y);
-    switch(this.defaultClickBehavior()) {
-    case DefaultClickBehavior.SHOW_ALL:
-      this._clickedNode = null;
-      this.nav().input().cursor().setFocusedNode(null);
-      this.nav().showInCamera(null);
-      return false;
-    default:
-      this._clickedNode = null;
-      return false;
+    switch (this.defaultClickBehavior()) {
+      case DefaultClickBehavior.SHOW_ALL:
+        this._clickedNode = null;
+        this.nav().input().cursor().setFocusedNode(null);
+        this.nav().showInCamera(null);
+        return false;
+      default:
+        this._clickedNode = null;
+        return false;
     }
     return false;
   }
@@ -291,8 +289,7 @@ export default class NavportMouseController extends BasicMouseController {
     this.nav().input().impulse().resetImpulse();
 
     if (
-      !this.nav()
-        .root()?.value() ||
+      !this.nav().root()?.value() ||
       this.nav()
         .root()
         .value()
