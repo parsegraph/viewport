@@ -56,7 +56,7 @@ export default class Navport implements Projected {
     this._input = new InputController(this);
     this._carousel = new Carousel(new Camera());
     this._carousel.setOnScheduleRepaint(this.scheduleRepaint, this);
-    this._webOverlay = new NavportWebOverlay(this);
+    this._webOverlay = new NavportWebOverlay();
 
     this._inputLayer = new Map();
 
@@ -229,6 +229,8 @@ export default class Navport implements Projected {
     needsUpdate = this.carousel().paint(inputProj, timeout) || needsUpdate;
     this._input.paint(inputProj);
     // this._piano.paint();
+    needsUpdate = this.web().paint(projector, timeout) || needsUpdate;
+
     if (needsUpdate) {
       this.scheduleRepaint();
     } else {
@@ -367,6 +369,9 @@ export default class Navport implements Projected {
       this._menu.paint(inputProj);
       this._menu.render(inputProj);
     }
+
+    needsUpdate = this.web().render(projector) || needsUpdate;
+
     this._renderedMouse = this.input().mouse().mouseVersion();
     if (!needsUpdate) {
       this._needsRender = this._needsRepaint;

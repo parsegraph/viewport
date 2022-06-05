@@ -1,12 +1,11 @@
 import { Projected, Projector } from "parsegraph-projector";
+import Method from 'parsegraph-method';
 
 export default class NavportWebOverlay implements Projected {
-  _navport: Navport;
   _iframes: Map<Projector, HTMLIFrameElement>;
   _update: Method;
 
-  constructor(navport: Navport) {
-    this._navport = navport;
+  constructor() {
     this._iframes = new Map();
     this._update = new Method();
   }
@@ -36,7 +35,7 @@ export default class NavportWebOverlay implements Projected {
     this._url = null;
   }
 
-  unmount(proj: Projector) {
+  unmount(projector: Projector) {
     const iframe = this._iframes.get(projector);
     if (iframe) {
       iframe.remove();
@@ -45,7 +44,7 @@ export default class NavportWebOverlay implements Projected {
   }
 
   dispose() {
-    this._iframes.values().forEach((iframe) => {
+    this._iframes.forEach(iframe => {
       iframe.remove();
     });
     this._iframes.clear();
@@ -55,9 +54,9 @@ export default class NavportWebOverlay implements Projected {
     const iframe = document.createElement("iframe");
     iframe.src = this.url();
     iframe.style.position = "absolute";
-    iframe.style.top = 0;
-    iframe.style.left = 0;
-    container.appendChild(iframe);
+    iframe.style.top = "0px";
+    iframe.style.left = "0px";
+    projector.getDOMContainer().appendChild(iframe);
     this._iframes.set(projector, iframe);
     return false;
   }
@@ -71,8 +70,8 @@ export default class NavportWebOverlay implements Projected {
     if (!iframe) {
       return true;
     }
-    iframe.width = projector.width();
-    iframe.height = projector.height();
+    iframe.width = projector.width() + "px";
+    iframe.height = projector.height() + "px";
     return false;
   }
 }
