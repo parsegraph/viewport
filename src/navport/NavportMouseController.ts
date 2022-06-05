@@ -263,7 +263,6 @@ export default class NavportMouseController extends BasicMouseController {
     this.nav().scheduleRepaint();
   }
 
-
   mouseup(button: any) {
     super.mouseup(button);
 
