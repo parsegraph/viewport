@@ -9,6 +9,7 @@ import Method from "parsegraph-method";
 import Color from "parsegraph-color";
 import { GraphPainter } from "parsegraph-graphpainter";
 import FullscreenViewportDisplayMode from "./displaymode/fullscreen";
+import NavportWebOverlay from "./NavportWebOverlay";
 
 export const FOCUS_SCALE = 2;
 
@@ -25,6 +26,7 @@ export default class Navport implements Projected {
   _camera: Camera;
   _cameraFilter: CameraFilter;
   _carousel: Carousel;
+  _webOverlay: NavportWebOverlay;
   _input: InputController;
   _menu: BurgerMenu;
   _renderedMouse: number;
@@ -54,6 +56,7 @@ export default class Navport implements Projected {
     this._input = new InputController(this);
     this._carousel = new Carousel(new Camera());
     this._carousel.setOnScheduleRepaint(this.scheduleRepaint, this);
+    this._webOverlay = new NavportWebOverlay(this);
 
     this._inputLayer = new Map();
 
@@ -171,6 +174,10 @@ export default class Navport implements Projected {
 
   root(): PaintedNode {
     return this._root;
+  }
+
+  web() {
+    return this._webOverlay;
   }
 
   setRoot(root: PaintedNode) {
