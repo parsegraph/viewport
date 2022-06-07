@@ -8,7 +8,9 @@ import Carousel, { ActionCarousel } from "parsegraph-carousel";
 import Color from "parsegraph-color";
 import render from "./render";
 
-const buildGraph = (carousel: Carousel) => {
+const buildGraph = (comp: Navport) => {
+  const carousel = comp.carousel();
+  const web = comp.web();
   const car = new DirectionCaret<Block>("u", new DefaultBlockPalette());
 
   const root = car.root();
@@ -36,9 +38,9 @@ const buildGraph = (carousel: Carousel) => {
     editLabel.value().setBlockStyle(bStyle);
 
     ac.addAction(editLabel, () => {
-      alert("Showing editor");
       carousel.hideCarousel();
       carousel.scheduleCarouselRepaint();
+      web.show("https://www.youtube.com/embed/W1WmqLODrPk");
     });
     ac.install(car.node());
     car.pull(dir);
@@ -49,7 +51,7 @@ const buildGraph = (carousel: Carousel) => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const comp = new Navport();
-  const root = buildGraph(comp.carousel());
+  const root = buildGraph(comp);
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
     alert(cmd);

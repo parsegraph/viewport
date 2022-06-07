@@ -1,5 +1,5 @@
 import { Projected, Projector } from "parsegraph-projector";
-import Method from 'parsegraph-method';
+import Method from "parsegraph-method";
 
 export default class NavportWebOverlay implements Projected {
   _iframes: Map<Projector, HTMLIFrameElement>;
@@ -28,7 +28,15 @@ export default class NavportWebOverlay implements Projected {
       this.hide();
       return;
     }
+    if (this._url === url) {
+      return;
+    }
     this._url = url;
+    this._iframes.forEach(iframe=>{
+      if (iframe.src !== this.url()) {
+        iframe.src = this.url();
+      }
+    });
   }
 
   hide() {
@@ -44,18 +52,25 @@ export default class NavportWebOverlay implements Projected {
   }
 
   dispose() {
-    this._iframes.forEach(iframe => {
+    this._iframes.forEach((iframe) => {
       iframe.remove();
     });
     this._iframes.clear();
   }
 
   paint(projector: Projector, timeout?: number) {
+    if (!this.url()) {
+      return false;
+    }
+    if (this._iframes.get(projector)) {
+      return false;
+    }
     const iframe = document.createElement("iframe");
     iframe.src = this.url();
     iframe.style.position = "absolute";
     iframe.style.top = "0px";
     iframe.style.left = "0px";
+    iframe.style.pointerEvents = "auto";
     projector.getDOMContainer().appendChild(iframe);
     this._iframes.set(projector, iframe);
     return false;
@@ -66,6 +81,9 @@ export default class NavportWebOverlay implements Projected {
   }
 
   render(projector: Projector): boolean {
+    if (!this.url()) {
+      return false;
+    }
     const iframe = this._iframes.get(projector);
     if (!iframe) {
       return true;
