@@ -4036,6 +4036,15 @@ parsegraph-input@^2.0.4:
     parsegraph-matrix "^1.4.12"
     parsegraph-normalizewheel "^1.4.7"
 
+parsegraph-input@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-2.0.5.tgz#b779b552d7d8572612d7d070a177fc58b2999148"
+  integrity sha512-mYXGJh9DjkcQHgPvkR6BuGUR4zdHla6hdA8TOV5wIAF8DrF2wGwkKKBnsMPmTqnNlvh0IUs+YiLxQWj/hUaM0g==
+  dependencies:
+    parsegraph-fuzzyequals "^1.4.9"
+    parsegraph-matrix "^1.4.12"
+    parsegraph-normalizewheel "^1.4.7"
+
 parsegraph-interact@^1.6.9:
   version "1.6.9"
   resolved "https://registry.yarnpkg.com/parsegraph-interact/-/parsegraph-interact-1.6.9.tgz#8710095c829115514bd1472dbc3ccafa229e8d0e"
