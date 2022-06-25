@@ -32,7 +32,7 @@ export default class NavportWebOverlay implements Projected {
       return;
     }
     this._url = url;
-    this._iframes.forEach(iframe=>{
+    this._iframes.forEach((iframe) => {
       if (iframe.src !== this.url()) {
         iframe.src = this.url();
       }
