@@ -317,7 +317,7 @@ export default class NavportMouseController extends BasicMouseController {
   }
 
   wheel(mag: number, x: number, y: number): boolean {
-    super.wheel(mag);
+    super.wheel(mag, x, y);
 
     if (WHEEL_MOVES_FOCUS && this.focusedNode()) {
       this.nav()
