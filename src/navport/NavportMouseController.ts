@@ -116,6 +116,8 @@ export default class NavportMouseController extends BasicMouseController {
   }
 
   mousemove(x: number, y: number): boolean {
+    const dx = x - this.lastMouseX();
+    const dy = y - this.lastMouseY();
     super.mousemove(x, y);
 
     if (this._nav.menu().onMousemove(x, y)) {
@@ -150,19 +152,17 @@ export default class NavportMouseController extends BasicMouseController {
     }
 
     // Moving during a mousedown i.e. dragging (or zooming)
-    if (this._attachedMouseListener) {
-      const mouseInWorld = matrixTransform2D(
-        makeInverse3x3(this.nav().camera().worldMatrix()),
-        x,
-        y
-      );
-      return this._attachedMouseListener(
-        mouseInWorld[0],
-        mouseInWorld[1],
-        x - this.lastMouseX(),
-        y - this.lastMouseY()
-      );
-    }
+    const mouseInWorld = matrixTransform2D(
+      makeInverse3x3(this.nav().camera().worldMatrix()),
+      x,
+      y
+    );
+    return this.mouseDragListener(
+      mouseInWorld[0],
+      mouseInWorld[1],
+      dx,
+      dy
+    );
 
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
