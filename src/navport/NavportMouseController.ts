@@ -316,7 +316,7 @@ export default class NavportMouseController extends BasicMouseController {
     return false;
   }
 
-  wheel(mag: number): boolean {
+  wheel(mag: number, x: number, y: number): boolean {
     super.wheel(mag);
 
     if (WHEEL_MOVES_FOCUS && this.focusedNode()) {
@@ -334,8 +334,8 @@ export default class NavportMouseController extends BasicMouseController {
       if (this.focusedNode()) {
         camera.zoomToPoint(
           Math.pow(1.1, numSteps),
-          this.lastMouseX(),
-          this.lastMouseY()
+          x,
+          y
         );
       } else {
         // this.nav().showInCamera(null);
