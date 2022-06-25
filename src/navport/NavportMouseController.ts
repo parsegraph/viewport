@@ -157,12 +157,7 @@ export default class NavportMouseController extends BasicMouseController {
       x,
       y
     );
-    return this.mouseDragListener(
-      mouseInWorld[0],
-      mouseInWorld[1],
-      dx,
-      dy
-    );
+    return this.mouseDragListener(mouseInWorld[0], mouseInWorld[1], dx, dy);
 
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
@@ -332,11 +327,7 @@ export default class NavportMouseController extends BasicMouseController {
     const camera = this.nav().camera();
     if (numSteps > 0 || camera.scale() >= MIN_CAMERA_SCALE) {
       if (this.focusedNode()) {
-        camera.zoomToPoint(
-          Math.pow(1.1, numSteps),
-          x,
-          y
-        );
+        camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
       } else {
         // this.nav().showInCamera(null);
         // camera.zoomToPoint(Math.pow(1.1, numSteps), event.x, event.y);
