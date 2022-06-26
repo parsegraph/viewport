@@ -71,17 +71,17 @@ export default class NavportMouseController extends BasicMouseController {
     return true;
   }
 
-  mousedown(button: any, downStart: number): boolean {
-    super.mousedown(button, downStart);
+  mousedown(button: any, downTime: number, x: number, y: number): boolean {
+    super.mousedown(button, downTime, x, y);
 
-    if (this.nav().menu().onMousedown(this.lastMouseX(), this.lastMouseY())) {
+    if (this.nav().menu().onMousedown(x, y)) {
       return true;
     }
 
     let mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.carousel().camera().worldMatrix()),
-      this.lastMouseX(),
-      this.lastMouseY()
+      x,
+      y
     );
     this.mouseChanged();
 
@@ -101,8 +101,8 @@ export default class NavportMouseController extends BasicMouseController {
 
     mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.nav().camera().worldMatrix()),
-      this.lastMouseX(),
-      this.lastMouseY()
+      x,
+      y
     );
 
     if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
@@ -152,12 +152,19 @@ export default class NavportMouseController extends BasicMouseController {
     }
 
     // Moving during a mousedown i.e. dragging (or zooming)
-    const mouseInWorld = matrixTransform2D(
-      makeInverse3x3(this.nav().camera().worldMatrix()),
-      x,
-      y
-    );
-    return this.mouseDragListener(mouseInWorld[0], mouseInWorld[1], dx, dy);
+    if (this._attachedMouseListener) {
+      const mouseInWorld = matrixTransform2D(
+        makeInverse3x3(this.nav().camera().worldMatrix()),
+        x,
+        y
+      );
+      return this._attachedMouseListener(
+        mouseInWorld[0],
+        mouseInWorld[1],
+        dx,
+        dy
+      );
+    }
 
     // Just a mouse moving over the (focused) canvas.
     let overClickable;
@@ -258,14 +265,13 @@ export default class NavportMouseController extends BasicMouseController {
     this.nav().scheduleRepaint();
   }
 
-  mouseup(button: any) {
-    super.mouseup(button);
-
+  mouseup(button: any, downTime: number, x: number, y: number) {
     const mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.carousel().camera().worldMatrix()),
-      this.lastMouseX(),
-      this.lastMouseY()
+      x, y
     );
+
+    super.mouseup(button, downTime, x, y);
 
     if (
       this.carousel().clickCarousel(mouseInWorld[0], mouseInWorld[1], false)
