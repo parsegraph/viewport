@@ -7,6 +7,7 @@ export default class FitInWindowViewportDisplayMode extends SplittingViewportDis
   render(proj: Projector, nav: Navport) {
     const viewport = nav;
     const cam = viewport.camera();
+    cam.setSize(proj.width(), proj.height());
     const root = viewport.root();
     const size = root.value().getLayout().extentSize();
     const container = proj.glProvider().container();
