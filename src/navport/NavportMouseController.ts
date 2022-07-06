@@ -58,16 +58,16 @@ export default class NavportMouseController extends BasicMouseController {
 
   mouseDragListener(x: number, y: number, dx: number, dy: number) {
     this.mouseChanged();
-    // this.nav().showInCamera(null);
-    // const camera = this.camera();
-    this.nav()
+    this.nav().showInCamera(null);
+    /* this.nav()
       .input()
       .impulse()
       .addImpulse(
         getMouseImpulseAdjustment() * -dx,
         getMouseImpulseAdjustment() * -dy
-      );
-    // camera.adjustOrigin(dx / camera.scale(), dy / camera.scale());
+      );*/
+    const camera = this.nav().camera();
+    camera.adjustOrigin(dx / camera.scale(), dy / camera.scale());
     return true;
   }
 
@@ -268,7 +268,8 @@ export default class NavportMouseController extends BasicMouseController {
   mouseup(button: any, downTime: number, x: number, y: number) {
     const mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.carousel().camera().worldMatrix()),
-      x, y
+      x,
+      y
     );
 
     super.mouseup(button, downTime, x, y);
@@ -335,13 +336,13 @@ export default class NavportMouseController extends BasicMouseController {
       if (this.focusedNode()) {
         camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
       } else {
-        // this.nav().showInCamera(null);
-        // camera.zoomToPoint(Math.pow(1.1, numSteps), event.x, event.y);
-        camera.zoomToPoint(
+        this.nav().showInCamera(null);
+        camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
+        /*camera.zoomToPoint(
           Math.pow(1.1, numSteps),
           this.nav().width() / 2,
           this.nav().height() / 2
-        );
+        );*/
       }
     }
     this.mouseChanged();

@@ -26,6 +26,8 @@ const MOVE_TO_DOWNWARD_END_KEY = "PageDown";
 const ZOOM_IN_KEY = "ZoomIn";
 const ZOOM_OUT_KEY = "ZoomOut";
 
+const KEY_CAMERA_FREE_MOVE = true;
+
 export default class NavportKeyController implements KeyController {
   keydowns: { [id: string]: Date };
   _cursor: NavportCursor;
@@ -94,7 +96,12 @@ export default class NavportKeyController implements KeyController {
     }
     this.keydowns[event.name()] = new Date();
 
-    return this.navKey(event);
+    if (this.navKey(event)) {
+      this.scheduleRepaint();
+      return true;
+    }
+
+    return false;
   }
 
   keyup(event: Keystroke) {
@@ -275,7 +282,7 @@ export default class NavportKeyController implements KeyController {
       case MOVE_UPWARD_KEY:
       case MOVE_BACKWARD_KEY:
       case MOVE_FORWARD_KEY:
-        return true;
+        return KEY_CAMERA_FREE_MOVE;
     }
     return false;
   }

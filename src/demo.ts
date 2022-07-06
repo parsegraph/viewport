@@ -50,7 +50,7 @@ const buildGraph = (comp: Navport) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const comp = new Navport();
+  const comp = new Navport(null);
   const root = buildGraph(comp);
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
