@@ -338,7 +338,7 @@ export default class NavportMouseController extends BasicMouseController {
       } else {
         this.nav().showInCamera(null);
         camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
-        /*camera.zoomToPoint(
+        /* camera.zoomToPoint(
           Math.pow(1.1, numSteps),
           this.nav().width() / 2,
           this.nav().height() / 2
