@@ -25,7 +25,7 @@ const buildGraph = (comp: Navport) => {
     Direction.UPWARD,
     Direction.BACKWARD,
   ];
-  for (let i = 0; i < 1; ++i) {
+  for (let i = 0; i < 10; ++i) {
     let dir = Direction.NULL;
     while (dir === Direction.NULL || car.has(dir)) {
       dir = dirs[Math.floor(Math.random() * dirs.length)];
