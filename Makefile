@@ -22,6 +22,7 @@ SCRIPT_FILES = \
 	src/render.ts \
 	src/showGraph.ts \
 	src/png.d.ts \
+	src/weboverlay.ts \
 	src/htmldemo.ts \
 	src/demo.ts \
 	test/test.ts
