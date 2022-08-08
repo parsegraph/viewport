@@ -4,10 +4,12 @@ import Method from "parsegraph-method";
 export default class NavportWebOverlay implements Projected {
   _iframes: Map<Projector, HTMLIFrameElement>;
   _update: Method;
+  _size: number;
 
   constructor() {
     this._iframes = new Map();
     this._update = new Method();
+    this.setSize();
   }
 
   scheduleUpdate() {
@@ -16,6 +18,11 @@ export default class NavportWebOverlay implements Projected {
 
   setOnScheduleUpdate(func: Function, obj?: object) {
     this._update.set(func, obj);
+  }
+
+  setSize(pct: number = 1) {
+    console.log("Chanigng sinze", this._size);
+    this._size = pct;
   }
 
   tick(startDate: number): boolean {
@@ -68,8 +75,8 @@ export default class NavportWebOverlay implements Projected {
     const iframe = document.createElement("iframe");
     iframe.src = this.url();
     iframe.style.position = "absolute";
-    iframe.style.top = "0px";
-    iframe.style.left = "0px";
+    iframe.style.top = "calc(50vh - 50%)";
+    iframe.style.left = "calc(50vw - 50%)";
     iframe.style.pointerEvents = "auto";
     projector.getDOMContainer().appendChild(iframe);
     this._iframes.set(projector, iframe);
@@ -88,8 +95,9 @@ export default class NavportWebOverlay implements Projected {
     if (!iframe) {
       return true;
     }
-    iframe.width = projector.width() + "px";
-    iframe.height = projector.height() + "px";
+    console.log("WEb overlay render", this._size);
+    iframe.width = this._size * projector.width() + "px";
+    iframe.height = this._size * projector.height() + "px";
     return false;
   }
 }

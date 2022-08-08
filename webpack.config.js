@@ -5,6 +5,7 @@ module.exports = {
     index: relDir("src/index.ts"),
     demo: relDir("src/demo.ts"),
     htmldemo: relDir("src/htmldemo.ts"),
+    weboverlay: relDir("src/weboverlay.ts"),
   },
   ...webpackConfig(false),
 };

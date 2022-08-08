@@ -1,15 +1,12 @@
 import Navport from ".";
 
-import Direction, { DirectionNode } from "parsegraph-direction";
+import Direction from "parsegraph-direction";
 
 import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
 import Carousel, { ActionCarousel } from "parsegraph-carousel";
 import Color from "parsegraph-color";
 import render from "./render";
-import { DOMContent, DOMContentArtist } from "parsegraph-artist";
-
-const artist = new DOMContentArtist();
 
 const buildGraph = (comp: Navport) => {
   const carousel = comp.carousel();
@@ -25,29 +22,29 @@ const buildGraph = (comp: Navport) => {
     Direction.UPWARD,
     Direction.BACKWARD,
   ];
-  for (let i = 0; i < 10; ++i) {
+  for (let i = 0; i < 20; ++i) {
     let dir = Direction.NULL;
     while (dir === Direction.NULL || car.has(dir)) {
       dir = dirs[Math.floor(Math.random() * dirs.length)];
     }
     car.spawn(dir, "b");
-    const n = car.node();
-    const val = new DOMContent(() => {
-      const c = document.createElement("div");
-      c.style.fontSize = "24px";
-      c.style.color = "green";
-      c.style.pointerEvents = "all";
-      c.innerText = "this is dom content";
-      // const c = document.createElement("img");
-      // c.src = "/favicon.ico";
-      return c;
+    car.node().value().setLabel("No time");
+    const ac = new ActionCarousel(carousel);
+
+    const editLabel = car.palette().spawn("b");
+    editLabel.value().setLabel("Edit");
+    const bStyle = copyStyle("b");
+    bStyle.backgroundColor = new Color(1, 1, 1, 1);
+    editLabel.value().setBlockStyle(bStyle);
+
+    ac.addAction(editLabel, () => {
+      carousel.hideCarousel();
+      carousel.scheduleCarouselRepaint();
+      web.setSize(0.5);
+      throw new Error("" + web._size);
+      web.show("https://www.youtube.com/embed/W1WmqLODrPk");
     });
-    val.setArtist(artist);
-    val.setNode(n as unknown as DirectionNode<DOMContent>);
-    val.setOnScheduleUpdate(() => {
-      n.layoutChanged();
-    });
-    (n as unknown as DirectionNode<DOMContent>).setValue(val);
+    ac.install(car.node());
     car.pull(dir);
     car.move(dir);
   }
