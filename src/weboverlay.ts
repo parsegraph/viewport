@@ -29,7 +29,6 @@ const buildGraph = (comp: Navport) => {
     }
     car.spawn(dir, "b");
     car.node().value().setLabel("No time");
-    const ac = new ActionCarousel(carousel);
 
     const editLabel = car.palette().spawn("b");
     editLabel.value().setLabel("Edit");
@@ -37,14 +36,41 @@ const buildGraph = (comp: Navport) => {
     bStyle.backgroundColor = new Color(1, 1, 1, 1);
     editLabel.value().setBlockStyle(bStyle);
 
-    ac.addAction(editLabel, () => {
-      carousel.hideCarousel();
-      carousel.scheduleCarouselRepaint();
-      web.setSize(0.5);
-      throw new Error("" + web._size);
-      web.show("https://www.youtube.com/embed/W1WmqLODrPk");
-    });
-    ac.install(car.node());
+    const n = car.node();
+    n.value()
+      .interact()
+      .setClickListener(() => {
+        web.setSize(0.75);
+        web.show((par) => {
+          const div = document.createElement("div");
+          div.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          });
+          div.innerHTML =
+            "<div style='border-radius: 6px; background: white; padding: 6px; pointer-events: auto'></div>";
+          const text = document.createElement("input");
+          text.style.fontSize = "2em";
+          div.childNodes[0].appendChild(text);
+          text.addEventListener("change", () => {
+            n.value().setLabel(text.value);
+            web.close();
+          });
+          text.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              n.value().setLabel(text.value);
+              web.close();
+            }
+          });
+          text.value = n.value().label();
+          setTimeout(() => {
+            text.focus();
+          }, 0);
+          par.appendChild(div);
+        });
+        comp.scheduleRepaint();
+        return true;
+      });
     car.pull(dir);
     car.move(dir);
   }

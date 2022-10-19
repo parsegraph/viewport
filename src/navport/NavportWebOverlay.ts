@@ -2,7 +2,7 @@ import { Projected, Projector } from "parsegraph-projector";
 import Method from "parsegraph-method";
 
 export default class NavportWebOverlay implements Projected {
-  _iframes: Map<Projector, HTMLIFrameElement>;
+  _iframes: Map<Projector, [HTMLDivElement, HTMLIFrameElement]>;
   _update: Method;
   _size: number;
 
@@ -29,8 +29,8 @@ export default class NavportWebOverlay implements Projected {
     return false;
   }
 
-  _url: string;
-  show(url: string) {
+  _url: string | ((parElem: HTMLDivElement) => void);
+  show(url: string | ((parElem: HTMLDivElement) => void)) {
     if (!url) {
       this.hide();
       return;
@@ -39,11 +39,6 @@ export default class NavportWebOverlay implements Projected {
       return;
     }
     this._url = url;
-    this._iframes.forEach((iframe) => {
-      if (iframe.src !== this.url()) {
-        iframe.src = this.url();
-      }
-    });
   }
 
   hide() {
@@ -53,16 +48,22 @@ export default class NavportWebOverlay implements Projected {
   unmount(projector: Projector) {
     const iframe = this._iframes.get(projector);
     if (iframe) {
-      iframe.remove();
+      iframe[0].remove();
       this._iframes.delete(projector);
     }
   }
 
   dispose() {
     this._iframes.forEach((iframe) => {
-      iframe.remove();
+      iframe[0].remove();
     });
     this._iframes.clear();
+  }
+
+  close() {
+    this.hide();
+    this.dispose();
+    this.scheduleUpdate();
   }
 
   paint(projector: Projector, timeout?: number) {
@@ -72,14 +73,32 @@ export default class NavportWebOverlay implements Projected {
     if (this._iframes.get(projector)) {
       return false;
     }
-    const iframe = document.createElement("iframe");
-    iframe.src = this.url();
-    iframe.style.position = "absolute";
-    iframe.style.top = "calc(50vh - 50%)";
-    iframe.style.left = "calc(50vw - 50%)";
-    iframe.style.pointerEvents = "auto";
-    projector.getDOMContainer().appendChild(iframe);
-    this._iframes.set(projector, iframe);
+
+    const border = document.createElement("div");
+    border.style.position = "absolute";
+    border.style.width = "100%";
+    border.style.height = "100%";
+    border.style.background = "rgba(0, 0, 0, 0.5)";
+    border.style.backgroundBlendMode = "luminosity";
+    border.style.display = "flex";
+    border.style.justifyContent = "center";
+    border.style.alignItems = "center";
+    border.style.pointerEvents = "auto";
+    border.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.close();
+    });
+    if (typeof this.url() === "string") {
+      const iframe = document.createElement("iframe");
+      iframe.src = this.url() as string;
+      border.appendChild(iframe);
+      this._iframes.set(projector, [border, iframe]);
+    } else {
+      (this.url() as Function)(border);
+      this._iframes.set(projector, [border, null]);
+    }
+    projector.getDOMContainer().appendChild(border);
     return false;
   }
 
@@ -95,9 +114,15 @@ export default class NavportWebOverlay implements Projected {
     if (!iframe) {
       return true;
     }
-    console.log("WEb overlay render", this._size);
-    iframe.width = this._size * projector.width() + "px";
-    iframe.height = this._size * projector.height() + "px";
+    if (iframe[1]) {
+      console.log("WEb overlay render", this._size, this.url());
+      const margin =
+        projector.width() > projector.height()
+          ? projector.height() - this._size * projector.height()
+          : projector.width() - this._size * projector.width();
+      iframe[1].width = Math.round(projector.width() - margin) + "px";
+      iframe[1].height = Math.round(projector.height() - margin) + "px";
+    }
     return false;
   }
 }
