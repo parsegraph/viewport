@@ -41,6 +41,7 @@ const buildGraph = (comp: Navport) => {
       carousel.hideCarousel();
       carousel.scheduleCarouselRepaint();
       web.show("https://www.youtube.com/embed/W1WmqLODrPk");
+      comp.scheduleRepaint();
     });
     ac.install(car.node());
     car.pull(dir);
