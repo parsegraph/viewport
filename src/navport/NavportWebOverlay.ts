@@ -91,6 +91,7 @@ export default class NavportWebOverlay implements Projected {
     });
     if (typeof this.url() === "string") {
       const iframe = document.createElement("iframe");
+      iframe.style.border = "0";
       iframe.src = this.url() as string;
       border.appendChild(iframe);
       this._iframes.set(projector, [border, iframe]);
