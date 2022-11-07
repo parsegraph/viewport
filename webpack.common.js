@@ -1,7 +1,6 @@
 const path = require("path");
 const { execSync} = require("child_process");
 const { readFileSync } = require("fs");
-const HtmlWebpackPlugin = require("html-webpack-plugin")
 
 const DIST_NAME = "viewport";
 
@@ -150,10 +149,6 @@ const webpackConfig = (prod)=>{
     },
     mode: prod ? "production" : "development",
     devtool: prod ? false : "eval-source-map",
-    plugins: [new HtmlWebpackPlugin({
-      template: "www/demo.html",
-      publicPath: '/'
-    })],
     optimization: {
       runtimeChunk: 'single',
       splitChunks: {
