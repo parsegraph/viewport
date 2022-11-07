@@ -3,6 +3,7 @@ import { PaintedNode } from "parsegraph-artist";
 import Navport from "./Navport";
 import AnimatedSpotlight from "parsegraph-animatedspotlight";
 import { Projector } from "parsegraph-projector";
+import { logc} from 'parsegraph-log'
 
 export default class NavportCursor {
   _focusedNode: PaintedNode;
@@ -138,7 +139,8 @@ export default class NavportCursor {
   update(_: Date) {
     let needsUpdate = false;
     if (this.focusedNode()) {
-      if (this._spotlight.animating()) {
+      if (this.isSpotlightShown() && this._spotlight.animating()) {
+        logc("Schedule Updates", "Cursor needs update")
         needsUpdate = true;
       }
     }

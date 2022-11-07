@@ -8,6 +8,7 @@ import NavportCursor from "./NavportCursor";
 import NavportKeyController from "./NavportKeyController";
 import NavportMouseController from "./NavportMouseController";
 import NavportImpulse from "./NavportImpulse";
+import log from 'parsegraph-log'
 
 export const TOUCH_SENSITIVITY = 1;
 export const MOUSE_SENSITIVITY = 1;
@@ -181,10 +182,22 @@ export default class InputController {
 
   update(t: Date) {
     let needsUpdate = this._mouse.update(t);
+    if (needsUpdate) {
+      log("Input tick needs update from mouse")
+    }
     needsUpdate = this._key.update(t) || needsUpdate;
+    if (needsUpdate) {
+      log("Input tick needs update from key or mouse")
+    }
     needsUpdate = this._cursor.update(t) || needsUpdate;
+    if (needsUpdate) {
+      log("Input tick needs update from key or mouse or cursor")
+    }
     if (this.focusedNode() && this._impulse.update(t)) {
       needsUpdate = true;
+    }
+    if (needsUpdate) {
+      log("Input tick needs update")
     }
     return needsUpdate;
   }

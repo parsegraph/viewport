@@ -10,6 +10,7 @@ import Color from "parsegraph-color";
 import { GraphPainter } from "parsegraph-graphpainter";
 import FullscreenViewportDisplayMode from "./displaymode/fullscreen";
 import NavportWebOverlay from "./NavportWebOverlay";
+import log, {logc} from "parsegraph-log"
 
 export const FOCUS_SCALE = 2;
 
@@ -203,40 +204,39 @@ export default class Navport implements Projected {
     if (gl.isContextLost()) {
       return false;
     }
-    if (!this.needsRepaint()) {
-      // console.log("No need to paint; viewport is not dirty for window " + window.id());
-      // return false;
+    let needsUpdate = false;
+    if (this.needsRepaint()) {
+      needsUpdate = this._painter.paint(projector, timeout);
+
+      let inputProj;
+      if (!this._inputLayer.has(projector)) {
+        inputProj = new BasicProjector();
+        const container = inputProj.glProvider().container();
+        projector.glProvider().container().appendChild(container);
+        container.style.left = "0px";
+        container.style.top = "0px";
+        container.style.right = "0px";
+        container.style.bottom = "0px";
+        inputProj.glProvider().gl();
+        inputProj.overlay();
+        this._inputLayer.set(projector, inputProj);
+      }
+      inputProj = this._inputLayer.get(projector);
+      inputProj.glProvider().container().style.position = "absolute";
+
+      needsUpdate = this.carousel().paint(inputProj, timeout) || needsUpdate;
+      this._input.paint(inputProj);
+      // this._piano.paint();
+      needsUpdate = this.web().paint(projector, timeout) || needsUpdate;
     }
 
-    let needsUpdate = this._painter.paint(projector, timeout);
-
-    let inputProj;
-    if (!this._inputLayer.has(projector)) {
-      inputProj = new BasicProjector();
-      const container = inputProj.glProvider().container();
-      projector.glProvider().container().appendChild(container);
-      container.style.left = "0px";
-      container.style.top = "0px";
-      container.style.right = "0px";
-      container.style.bottom = "0px";
-      inputProj.glProvider().gl();
-      inputProj.overlay();
-      this._inputLayer.set(projector, inputProj);
-    }
-    inputProj = this._inputLayer.get(projector);
-    inputProj.glProvider().container().style.position = "absolute";
-
-    needsUpdate = this.carousel().paint(inputProj, timeout) || needsUpdate;
-    this._input.paint(inputProj);
-    // this._piano.paint();
-    needsUpdate = this.web().paint(projector, timeout) || needsUpdate;
-
+    this._needsRender = this._needsRender || this._needsRepaint;
     if (needsUpdate) {
       this.scheduleRepaint();
     } else {
       this._needsRepaint = false;
     }
-    this._needsRender = true;
+    log("Needs a render", this._needsRender, needsUpdate)
     return needsUpdate;
   }
 
@@ -326,7 +326,7 @@ export default class Navport implements Projected {
 
     needsUpdate = this._painter.render(projector) || needsUpdate;
     if (needsUpdate) {
-      // logc("World was rendered dirty.");
+      log("World was rendered dirty.");
       this.scheduleRender();
     }
 
@@ -378,6 +378,8 @@ export default class Navport implements Projected {
       this._needsRender = this._needsRepaint;
     }
 
+    needsUpdate = Boolean(needsUpdate)
+    logc("Viewport renders", "Render complete", needsUpdate)
     return needsUpdate;
   }
 }
