@@ -137,6 +137,6 @@ parsegraph-$(DIST_NAME)-prod.tgz: $(PROD_LIB)
 	mkdir $(BUILD)
 	cp -r -t $(BUILD) $(EXTRA_FILES)
 	cp -r dist-prod/ $(BUILD)/dist
-	test ! -d $(BUILD)/dist/dist-prod/src || mv $(BUILD)/dist/dist-prod/src/* $(BUILD)/dist/src
+	test ! -d $(BUILD)/dist/dist || mv $(BUILD)/dist/dist/* $(BUILD)/dist
 	tar cvzf $@ $(BUILD)/
 	rm -rf $(BUILD)
