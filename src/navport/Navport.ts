@@ -10,7 +10,7 @@ import Color from "parsegraph-color";
 import { GraphPainter } from "parsegraph-graphpainter";
 import FullscreenViewportDisplayMode from "./displaymode/fullscreen";
 import NavportWebOverlay from "./NavportWebOverlay";
-import log, {logc} from "parsegraph-log"
+import log, { logc } from "parsegraph-log";
 
 export const FOCUS_SCALE = 2;
 
@@ -236,7 +236,7 @@ export default class Navport implements Projected {
     } else {
       this._needsRepaint = false;
     }
-    log("Needs a render", this._needsRender, needsUpdate)
+    log("Needs a render", this._needsRender, needsUpdate);
     return needsUpdate;
   }
 
@@ -378,8 +378,8 @@ export default class Navport implements Projected {
       this._needsRender = this._needsRepaint;
     }
 
-    needsUpdate = Boolean(needsUpdate)
-    logc("Viewport renders", "Render complete", needsUpdate)
+    needsUpdate = Boolean(needsUpdate);
+    logc("Viewport renders", "Render complete", needsUpdate);
     return needsUpdate;
   }
 }

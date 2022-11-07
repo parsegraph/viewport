@@ -55,7 +55,7 @@ const buildGraph = (comp: Navport) => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const comp = new Navport(null);
-  comp.setBackgroundColor(new Color(0.5))
+  comp.setBackgroundColor(new Color(0.5));
   const root = buildGraph(comp);
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
