@@ -317,11 +317,13 @@ export default class Navport implements Projected {
 
   render(projector: Projector): boolean {
     // width: number, height: number, avoidIfPossible: boolean): boolean {
+    const overlay = projector.overlay();
+    overlay.resetTransform();
+    overlay.clearRect(0, 0, projector.width(), projector.height());
     let needsUpdate = this._displayMode?.render(projector, this);
     this.camera().setSize(projector.width(), projector.height());
 
     this.renderBackground(projector);
-    const overlay = projector.overlay();
     overlay.textBaseline = "top";
 
     needsUpdate = this._painter.render(projector) || needsUpdate;
