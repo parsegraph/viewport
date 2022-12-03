@@ -4,7 +4,7 @@ import Direction from "parsegraph-direction";
 
 import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
-import Carousel, { ActionCarousel } from "parsegraph-carousel";
+import { ActionCarousel } from "./carousel";
 import Color from "parsegraph-color";
 import render from "./render";
 

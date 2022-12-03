@@ -3998,14 +3998,6 @@ parsegraph-camera@^1.4.18:
     parsegraph-matrix "^1.4.12"
     parsegraph-rect "^1.5.1"
 
-parsegraph-carousel@^2.3.37:
-  version "2.3.37"
-  resolved "https://registry.yarnpkg.com/parsegraph-carousel/-/parsegraph-carousel-2.3.37.tgz#2e77bb0912efe8615e7d2efa609021fc8570bf7b"
-  integrity sha512-NRJXmfhqs1uYKqWdMbYJNhDnX/HAbIujIVlxIG+eG94haWVQ1X9KS8ZmTDCfwrw78hy5K+h+3v3IdoIh5cjTYw==
-  dependencies:
-    parsegraph-fanpainter "^1.6.13"
-    parsegraph-graphpainter "^2.5.16"
-
 parsegraph-checkglerror@^1.5.3:
   version "1.5.3"
   resolved "https://registry.yarnpkg.com/parsegraph-checkglerror/-/parsegraph-checkglerror-1.5.3.tgz#e3f55c6d014308cf7450fcf3ff7b4a8d0b799f3e"
@@ -4083,10 +4075,10 @@ parsegraph-gettimeinmillis@^1.4.6:
   resolved "https://registry.yarnpkg.com/parsegraph-gettimeinmillis/-/parsegraph-gettimeinmillis-1.4.6.tgz#edb341bf5b2faaaf918e8c0ba31f63d643afe942"
   integrity sha512-ARG/HOV6rb8R8U6tLgJ5l8IYL21DoKIki7Ktrm4+kckKyLBLBLGFY0HH5fzzcIue9bhbjI5Kj0pUCGazSIUj5w==
 
-parsegraph-graphpainter@^2.5.16:
-  version "2.5.16"
-  resolved "https://registry.yarnpkg.com/parsegraph-graphpainter/-/parsegraph-graphpainter-2.5.16.tgz#c134a452590750c39c664e68c3a9bf2ed12dfe9c"
-  integrity sha512-XKV4D/nmvjtGwwVZFmCOfGwRp4EHni+JdfWwSGYpY847TwJ34J6nmBP6bJwXZWVLjNndiIqYnGrCgBubD0xAOA==
+parsegraph-graphpainter@^2.5.17:
+  version "2.5.17"
+  resolved "https://registry.yarnpkg.com/parsegraph-graphpainter/-/parsegraph-graphpainter-2.5.17.tgz#90200c31989fa581345969731c97fad57584d1e7"
+  integrity sha512-QoyuGZ1ggn/VfHTHY05kuUiIApsJxRX0YbU9h5Y6n3AELskSfz6i/FiEnSbeXaumfUw8PGWHEeOyPtgUxh8KLA==
   dependencies:
     parsegraph-block "^4.4.27"
 

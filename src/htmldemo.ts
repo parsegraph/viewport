@@ -2,18 +2,15 @@ import Navport from ".";
 
 import Direction, { DirectionNode } from "parsegraph-direction";
 
-import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
+import Block, { DefaultBlockPalette } from "parsegraph-block";
 import { DirectionCaret } from "parsegraph-direction";
-import Carousel, { ActionCarousel } from "parsegraph-carousel";
 import Color from "parsegraph-color";
 import render from "./render";
 import { DOMContent, DOMContentArtist } from "parsegraph-artist";
 
 const artist = new DOMContentArtist();
 
-const buildGraph = (comp: Navport) => {
-  const carousel = comp.carousel();
-  const web = comp.web();
+const buildGraph = () => {
   const car = new DirectionCaret<Block>("u", new DefaultBlockPalette());
 
   const root = car.root();
@@ -56,7 +53,7 @@ const buildGraph = (comp: Navport) => {
 document.addEventListener("DOMContentLoaded", () => {
   const comp = new Navport(null);
   comp.setBackgroundColor(new Color(0.5));
-  const root = buildGraph(comp);
+  const root = buildGraph();
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
     alert(cmd);

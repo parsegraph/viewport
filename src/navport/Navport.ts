@@ -1,5 +1,5 @@
 import Camera from "parsegraph-camera";
-import Carousel from "parsegraph-carousel";
+import { Carousel } from "../carousel";
 import InputController from "./InputController";
 import BurgerMenu from "./BurgerMenu";
 import CameraFilter from "./CameraFilter";

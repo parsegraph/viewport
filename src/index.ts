@@ -30,6 +30,8 @@ import SingleScreenViewportDisplayMode, {
 } from "./navport/displaymode/single";
 import SplittingViewportDisplayMode from "./navport/displaymode/split";
 
+export * from './carousel';
+
 export default Navport;
 
 export {
