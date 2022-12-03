@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   comp.menu().setSearchCallback((cmd: string) => {
     alert(cmd);
   });
+  comp.scheduleRepaint();
 
   render(document.getElementById("demo"), comp);
 });
