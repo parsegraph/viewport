@@ -1,6 +1,13 @@
 DIST_NAME = viewport
 
 SCRIPT_FILES = \
+	src/carousel/index.ts \
+	src/carousel/settings.ts \
+	src/carousel/ActionCarousel.ts \
+	src/carousel/graphDemo.ts \
+	src/carousel/Carousel.ts \
+	src/carousel/CarouselAction.ts \
+	src/carousel/demo.ts \
 	src/index.ts \
 	src/navport/impulse.ts \
 	src/navport/NavportMouseController.ts \
