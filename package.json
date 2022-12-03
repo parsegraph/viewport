@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "parsegraph-animatedspotlight": "^2.0.37",
-    "parsegraph-carousel": "^2.3.35",
+    "parsegraph-carousel": "^2.3.36",
     "parsegraph-texturepainter": "^1.6.12"
   }
 }
