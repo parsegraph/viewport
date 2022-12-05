@@ -3,6 +3,7 @@ import Navport from ".";
 import Direction from "parsegraph-direction";
 
 import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
+import {showInCamera} from 'parsegraph-showincamera';
 import { DirectionCaret } from "parsegraph-direction";
 import { ActionCarousel } from "./carousel";
 import Color from "parsegraph-color";
@@ -53,6 +54,7 @@ const buildGraph = (comp: Navport) => {
 document.addEventListener("DOMContentLoaded", () => {
   const comp = new Navport(null);
   const root = buildGraph(comp);
+  comp.showInCamera(root);
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
     alert(cmd);
@@ -60,4 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   comp.scheduleRepaint();
 
   render(document.getElementById("demo"), comp);
+  setTimeout(()=>{
+    showInCamera(root, comp.camera(), false);
+  }, 0);
 });
