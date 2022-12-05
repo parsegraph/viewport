@@ -44,7 +44,7 @@ export default class Navport implements Projected {
   constructor(
     displayMode: ViewportDisplayMode = new FullscreenViewportDisplayMode(),
     root?: PaintedNode,
-    backgroundColor: Color = new Color(0, 0, 0, 1)
+    backgroundColor: Color = new Color(149/255, 149/255, 149/255, 1)
   ) {
     // Construct the graph.
     this._update = new Method();
