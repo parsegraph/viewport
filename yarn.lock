@@ -3945,17 +3945,23 @@ parse5@^7.1.1:
   dependencies:
     entities "^4.4.0"
 
-parsegraph-animatedspotlight@^2.0.38:
-  version "2.0.38"
-  resolved "https://registry.yarnpkg.com/parsegraph-animatedspotlight/-/parsegraph-animatedspotlight-2.0.38.tgz#c74049a2a413e0f6ba17f5b027bed1f9352cf7d0"
-  integrity sha512-FCIY9rhQ5s68ZpY7qme5+ITd4DntjgBUbCG/orvDw29O8XzVmX+MEiX3bENDehNJpyAjsvPX80dDEsHdJsW9YA==
+parsegraph-animatedspotlight@^2.0.39:
+  version "2.0.39"
+  resolved "https://registry.yarnpkg.com/parsegraph-animatedspotlight/-/parsegraph-animatedspotlight-2.0.39.tgz#e619e2a3dd2956e23c4fb630ffd8e128b5614aad"
+  integrity sha512-3vNmBsmba+1asiU/5AZUj9E2Wx7I/FvB/JpeKGci7yGj8obzdwNOTIpGDjbE5SoQhT9KMh80aMf/7r7ZyzE7VQ==
   dependencies:
     parsegraph-animator "^1.5.8"
-    parsegraph-layout "^1.13.6"
+    parsegraph-color "^1.4.8"
+    parsegraph-direction "^2.1.2"
+    parsegraph-layout "^1.13.8"
     parsegraph-lerp "^1.5.9"
+    parsegraph-matrix "^1.4.12"
+    parsegraph-method "^1.4.22"
     parsegraph-projector "^1.14.3"
     parsegraph-smoothstep "^1.4.5"
     parsegraph-spotlightpainter "^2.3.13"
+    parsegraph-timing "^1.4.16"
+    parsegraph-timingbelt "^1.7.13"
 
 parsegraph-animator@^1.5.8:
   version "1.5.8"
@@ -4015,14 +4021,6 @@ parsegraph-compileprogram@^2.2.17:
     parsegraph-method "^1.4.22"
     parsegraph-rect "^1.5.1"
     parsegraph-shader "^1.5.6"
-
-parsegraph-direction@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/parsegraph-direction/-/parsegraph-direction-2.1.0.tgz#216d5930265e0b823f0f8bc424589ef7af55c94f"
-  integrity sha512-gh1K13Yl0sVrRjbZPpmsE3/yd6nNOThgFZNdrO/t1nM35WA4TWKqoIkfvLaUXfThIbmU6w+YXgSD72i0L1LLTg==
-  dependencies:
-    parsegraph-generateid "^1.4.8"
-    parsegraph-timing "^1.4.16"
 
 parsegraph-direction@^2.1.2:
   version "2.1.2"
@@ -4093,17 +4091,6 @@ parsegraph-interact@^1.6.12:
   dependencies:
     parsegraph-input "^2.0.6"
     parsegraph-method "^1.4.22"
-
-parsegraph-layout@^1.13.6:
-  version "1.13.6"
-  resolved "https://registry.yarnpkg.com/parsegraph-layout/-/parsegraph-layout-1.13.6.tgz#e771ac2297b53307443d02d6ce92368ff40a901c"
-  integrity sha512-x7+pzHpI0w1Jse613cVSr70RNejPuhjRsk2LuTZ+ZaUdeMxU7UjbhjbVaOXtkp1ZLRC91Yoafo4qYhEcR8TI+g==
-  dependencies:
-    parsegraph-direction "^2.1.0"
-    parsegraph-extent "^1.4.11"
-    parsegraph-rect "^1.5.1"
-    parsegraph-size "^1.7.1"
-    parsegraph-timing "^1.4.16"
 
 parsegraph-layout@^1.13.8:
   version "1.13.8"
