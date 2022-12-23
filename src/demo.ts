@@ -3,7 +3,7 @@ import Navport from ".";
 import Direction from "parsegraph-direction";
 
 import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
-import {showInCamera} from 'parsegraph-showincamera';
+import { showInCamera } from "parsegraph-showincamera";
 import { DirectionCaret } from "parsegraph-direction";
 import { ActionCarousel } from "./carousel";
 import Color from "parsegraph-color";
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   comp.scheduleRepaint();
 
   render(document.getElementById("demo"), comp);
-  setTimeout(()=>{
+  setTimeout(() => {
     showInCamera(root, comp.camera(), false);
   }, 0);
 });
