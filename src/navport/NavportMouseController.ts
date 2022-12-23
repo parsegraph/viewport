@@ -349,6 +349,7 @@ export default class NavportMouseController extends BasicMouseController {
       }
     }
     this.mouseChanged();
+    this.scheduleRepaint();
     return true;
   }
 
