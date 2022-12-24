@@ -1,5 +1,10 @@
 import TimingBelt from "parsegraph-timingbelt";
-import { Projector, BasicProjector, Projected, Projection } from "parsegraph-projector";
+import {
+  Projector,
+  BasicProjector,
+  Projected,
+  Projection,
+} from "parsegraph-projector";
 import Viewport from "./navport/Navport";
 import { PaintedNode } from "parsegraph-artist";
 import SingleScreenViewportDisplayMode from "./navport/displaymode/single";
