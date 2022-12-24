@@ -1,5 +1,5 @@
 import TimingBelt from "parsegraph-timingbelt";
-import { BasicProjector, Projected, Projection } from "parsegraph-projector";
+import { Projector, BasicProjector, Projected, Projection } from "parsegraph-projector";
 import Viewport from "./navport/Navport";
 import { PaintedNode } from "parsegraph-artist";
 import SingleScreenViewportDisplayMode from "./navport/displaymode/single";
@@ -10,11 +10,10 @@ import Color from "parsegraph-color";
 
 export default function render(
   container: Element,
-  projected: Projected
+  projected: Projected,
+  projector: Projector = new BasicProjector(),
+  belt: TimingBelt = new TimingBelt()
 ): () => void {
-  const belt = new TimingBelt();
-  const projector = new BasicProjector();
-
   container.appendChild(projector.container());
   new ResizeObserver(() => {
     belt.scheduleUpdate();
