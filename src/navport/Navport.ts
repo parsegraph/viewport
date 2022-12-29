@@ -355,9 +355,9 @@ export default class Navport implements Projected {
     // this._piano.render(world, cam.scale());
     if (this.carousel().isCarouselShown() && !projector.isOffscreen()) {
       const scale = this.camera().scale();
-      const layout = this.focusedNode().value().getLayout();
-      const x = this.camera().x() * scale + layout.absoluteX() * scale;
-      const y = this.camera().y() * scale + layout.absoluteY() * scale;
+      const [carouselX, carouselY] = this.carousel().getPos();
+      const x = this.camera().x() * scale + carouselX * scale;
+      const y = this.camera().y() * scale + carouselY * scale;
       const cam = this.carousel().camera();
       cam.copy(this.camera());
       cam.setSize(this.camera().width(), this.camera().height());

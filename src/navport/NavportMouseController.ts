@@ -88,28 +88,7 @@ export default class NavportMouseController extends BasicMouseController {
       return true;
     }
 
-    let mouseInWorld = matrixTransform2D(
-      makeInverse3x3(this.carousel().camera().worldMatrix()),
-      x,
-      y
-    );
-    this.mouseChanged();
-
-    if (this.nav().carousel().isCarouselShown()) {
-      if (
-        this.nav()
-          .carousel()
-          .clickCarousel(mouseInWorld[0], mouseInWorld[1], true)
-      ) {
-        return true;
-      } else {
-        this.nav().carousel().hideCarousel();
-        this.nav().carousel().scheduleCarouselRepaint();
-        return true;
-      }
-    }
-
-    mouseInWorld = matrixTransform2D(
+    const mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.nav().camera().worldMatrix()),
       x,
       y
@@ -171,12 +150,7 @@ export default class NavportMouseController extends BasicMouseController {
         x,
         y
       );
-      return this.mouseDrag(
-        mouseInWorld[0],
-        mouseInWorld[1],
-        dx,
-        dy
-      );
+      return this.mouseDrag(mouseInWorld[0], mouseInWorld[1], dx, dy);
     }
 
     // Just a mouse moving over the (focused) canvas.
@@ -290,16 +264,18 @@ export default class NavportMouseController extends BasicMouseController {
 
     super.mouseup(button, downTime, x, y);
 
+    const wasCarouselShown = this.carousel().isCarouselShown();
     if (
       this.carousel().clickCarousel(mouseInWorld[0], mouseInWorld[1], false)
     ) {
+      this.scheduleRepaint();
       return true;
     } else if (this.carousel().isCarouselShown()) {
       this.nav().carousel().hideCarousel();
       this.nav().carousel().scheduleCarouselRepaint();
       return true;
     }
-    if (!this._dragging) {
+    if (this.carousel().isCarouselShown() !== wasCarouselShown) {
       return false;
     }
     this._dragging = false;
@@ -318,11 +294,28 @@ export default class NavportMouseController extends BasicMouseController {
 
     const selectedNode = this.focusedNode();
     if (selectedNode) {
+      const mouseInWorld = matrixTransform2D(
+        makeInverse3x3(this.nav().camera().worldMatrix()),
+        x,
+        y
+      );
+      if (
+        !selectedNode
+          .value()
+          .getLayout()
+          .inNodeBody(mouseInWorld[0], mouseInWorld[1])
+      ) {
+        this._clickedNode = null;
+        return false;
+      }
       // Check if the selected node has a click listener.
       if (this._clickedNode === selectedNode) {
         if (selectedNode.value().interact().hasClickListener()) {
           if (selectedNode.value().interact().click()) {
             this._clickedNode = null;
+          }
+          if (this.carousel().isCarouselShown()) {
+            this.carousel().setPos(mouseInWorld[0], mouseInWorld[1]);
           }
           this.scheduleRepaint();
         }

@@ -48,6 +48,8 @@ export default class Carousel implements Projected {
   _showTime: Date;
   _update: Method;
   _camera: Camera;
+  _x: number;
+  _y: number;
 
   constructor(cam: Camera) {
     this._camera = cam;
@@ -193,6 +195,15 @@ export default class Carousel implements Projected {
 
   updateRepeatedly() {
     return this._updateRepeatedly;
+  }
+
+  setPos(x: number, y: number) {
+    this._x = x;
+    this._y = y;
+  }
+
+  getPos(): [number, number] {
+    return [this._x, this._y];
   }
 
   clickCarousel(x: number, y: number, asDown: boolean) {
