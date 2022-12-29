@@ -68,7 +68,6 @@ export default class NavportMouseController extends BasicMouseController {
       }
     }
     this.mouseChanged();
-    this.nav().showInCamera(null);
     /* this.nav()
       .input()
       .impulse()
@@ -78,6 +77,7 @@ export default class NavportMouseController extends BasicMouseController {
       );*/
     const camera = this.nav().camera();
     camera.adjustOrigin(dx / camera.scale(), dy / camera.scale());
+    this.scheduleRepaint();
     return true;
   }
 
@@ -99,11 +99,8 @@ export default class NavportMouseController extends BasicMouseController {
       this.nav().input().cursor().spotlight().dispose();
     }
 
-    this._dragging = this.focusedNode()?.value()?.interact()?.hasDragListener();
-
-    if (this._dragging) {
-      this.mouseDrag(mouseInWorld[0], mouseInWorld[1], 0, 0);
-    }
+    this._dragging = true;
+    this.mouseDrag(mouseInWorld[0], mouseInWorld[1], 0, 0);
     return true;
   }
 
@@ -144,7 +141,7 @@ export default class NavportMouseController extends BasicMouseController {
     }
 
     // Moving during a mousedown i.e. dragging (or zooming)
-    if (this._dragging) {
+    if (this._dragging && !isNaN(dx) && !isNaN(dy)) {
       const mouseInWorld = matrixTransform2D(
         makeInverse3x3(this.nav().camera().worldMatrix()),
         x,
@@ -243,6 +240,7 @@ export default class NavportMouseController extends BasicMouseController {
         return false;
       default:
         this._clickedNode = null;
+        this.setFocusedNode(null);
         return false;
     }
   }
@@ -263,6 +261,7 @@ export default class NavportMouseController extends BasicMouseController {
     );
 
     super.mouseup(button, downTime, x, y);
+    this._dragging = false;
 
     const wasCarouselShown = this.carousel().isCarouselShown();
     if (
@@ -278,7 +277,6 @@ export default class NavportMouseController extends BasicMouseController {
     if (this.carousel().isCarouselShown() !== wasCarouselShown) {
       return false;
     }
-    this._dragging = false;
     this.nav().input().impulse().resetImpulse();
 
     if (
