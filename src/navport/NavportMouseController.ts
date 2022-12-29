@@ -61,6 +61,12 @@ export default class NavportMouseController extends BasicMouseController {
   }
 
   mouseDrag(x: number, y: number, dx: number, dy: number) {
+    if (this.focusedNode()?.value()?.interact()?.hasDragListener()) {
+      if (this.focusedNode().value().interact().drag(x, y, dx, dy)) {
+        this.scheduleRepaint();
+        return true;
+      }
+    }
     this.mouseChanged();
     this.nav().showInCamera(null);
     /* this.nav()
@@ -70,11 +76,6 @@ export default class NavportMouseController extends BasicMouseController {
         getMouseImpulseAdjustment() * -dx,
         getMouseImpulseAdjustment() * -dy
       );*/
-    if (this.focusedNode()?.value()?.interact()?.hasDragListener()) {
-      if (this.focusedNode().value().interact().drag(x, y, dx, dy)) {
-        return true;
-      }
-    }
     const camera = this.nav().camera();
     camera.adjustOrigin(dx / camera.scale(), dy / camera.scale());
     return true;
@@ -119,8 +120,11 @@ export default class NavportMouseController extends BasicMouseController {
       this.nav().input().cursor().spotlight().dispose();
     }
 
-    this._dragging = true;
-    this.mouseDrag(mouseInWorld[0], mouseInWorld[1], 0, 0);
+    this._dragging = this.focusedNode()?.value()?.interact()?.hasDragListener();
+
+    if (this._dragging) {
+      this.mouseDrag(mouseInWorld[0], mouseInWorld[1], 0, 0);
+    }
     return true;
   }
 
@@ -215,6 +219,11 @@ export default class NavportMouseController extends BasicMouseController {
     this._defaultClick = behavior;
   }
 
+  setFocusedNode(node: PaintedNode) {
+    this.nav().input().cursor().setFocusedNode(node);
+    this.nav().showInCamera(node);
+  }
+
   checkForNodeClick(x: number, y: number): boolean {
     if (
       !this.nav().root()?.value() ||
@@ -225,8 +234,7 @@ export default class NavportMouseController extends BasicMouseController {
         .commitLayoutIteratively(INPUT_LAYOUT_TIME)
     ) {
       this._clickedNode = null;
-      this.nav().input().cursor().setFocusedNode(null);
-      this.nav().showInCamera(null);
+      this.setFocusedNode(null);
       return false;
     }
     const selectedNode = this.nav()
@@ -247,7 +255,8 @@ export default class NavportMouseController extends BasicMouseController {
       if (selectedNode !== this._clickedNode) {
         this._clickedNode = null;
       }
-      this.nav().input().cursor().setFocusedNode(selectedNode);
+      this.setFocusedNode(selectedNode);
+      this.scheduleRepaint();
 
       return true;
     }
@@ -256,14 +265,12 @@ export default class NavportMouseController extends BasicMouseController {
     switch (this.defaultClickBehavior()) {
       case DefaultClickBehavior.SHOW_ALL:
         this._clickedNode = null;
-        this.nav().input().cursor().setFocusedNode(null);
-        this.nav().showInCamera(null);
+        this.setFocusedNode(null);
         return false;
       default:
         this._clickedNode = null;
         return false;
     }
-    return false;
   }
 
   focusedNode(): PaintedNode {
