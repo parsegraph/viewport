@@ -23,7 +23,7 @@ export enum DefaultClickBehavior {
 
 export default class NavportMouseController extends BasicMouseController {
   _defaultClick: DefaultClickBehavior;
-  _attachedMouseListener: Function;
+  _dragging: boolean;
   _mouseVersion: number;
   _mousePos: [number, number];
   _nav: Navport;
@@ -36,6 +36,7 @@ export default class NavportMouseController extends BasicMouseController {
     this._nav = nav;
     this._clickedNode = null;
     this._defaultClick = DefaultClickBehavior.DO_NOTHING;
+    this._dragging = false;
   }
 
   nav() {
@@ -59,7 +60,7 @@ export default class NavportMouseController extends BasicMouseController {
     return needsUpdate;
   }
 
-  mouseDragListener(x: number, y: number, dx: number, dy: number) {
+  mouseDrag(x: number, y: number, dx: number, dy: number) {
     this.mouseChanged();
     this.nav().showInCamera(null);
     /* this.nav()
@@ -114,7 +115,8 @@ export default class NavportMouseController extends BasicMouseController {
       this.nav().input().cursor().spotlight().dispose();
     }
 
-    this._attachedMouseListener = this.mouseDragListener;
+    this._dragging = true;
+    this.mouseDrag(mouseInWorld[0], mouseInWorld[1], 0, 0);
     return true;
   }
 
@@ -155,13 +157,13 @@ export default class NavportMouseController extends BasicMouseController {
     }
 
     // Moving during a mousedown i.e. dragging (or zooming)
-    if (this._attachedMouseListener) {
+    if (this._dragging) {
       const mouseInWorld = matrixTransform2D(
         makeInverse3x3(this.nav().camera().worldMatrix()),
         x,
         y
       );
-      return this._attachedMouseListener(
+      return this.mouseDrag(
         mouseInWorld[0],
         mouseInWorld[1],
         dx,
@@ -286,10 +288,10 @@ export default class NavportMouseController extends BasicMouseController {
       this.nav().carousel().scheduleCarouselRepaint();
       return true;
     }
-    if (!this._attachedMouseListener) {
+    if (!this._dragging) {
       return false;
     }
-    this._attachedMouseListener = null;
+    this._dragging = false;
     this.nav().input().impulse().resetImpulse();
 
     if (
