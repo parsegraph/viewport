@@ -70,6 +70,11 @@ export default class NavportMouseController extends BasicMouseController {
         getMouseImpulseAdjustment() * -dx,
         getMouseImpulseAdjustment() * -dy
       );*/
+    if (this.focusedNode()?.value()?.interact()?.hasDragListener()) {
+      if (this.focusedNode().value().interact().drag(x, y, dx, dy)) {
+        return true;
+      }
+    }
     const camera = this.nav().camera();
     camera.adjustOrigin(dx / camera.scale(), dy / camera.scale());
     return true;
