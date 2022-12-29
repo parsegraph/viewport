@@ -115,7 +115,6 @@ export default class NavportMouseController extends BasicMouseController {
     );
 
     if (this.checkForNodeClick(mouseInWorld[0], mouseInWorld[1])) {
-      // return true;
       this.savePos(mouseInWorld[0], mouseInWorld[1]);
       this.nav().input().cursor().spotlight().dispose();
     }
