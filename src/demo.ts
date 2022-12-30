@@ -1,6 +1,6 @@
 import Navport from ".";
 
-import Direction from "parsegraph-direction";
+import Direction, { nameDirection } from "parsegraph-direction";
 
 import Block, { copyStyle, DefaultBlockPalette } from "parsegraph-block";
 import { showInCamera } from "parsegraph-showincamera";
@@ -29,7 +29,10 @@ const buildGraph = (comp: Navport) => {
       dir = dirs[Math.floor(Math.random() * dirs.length)];
     }
     car.spawn(dir, "b");
-    car.node().value().setLabel("No time");
+    car.node().value().setLabel(nameDirection(dir));
+    if (Math.random() > 0.5) {
+      car.node().value().interact().setImmediateClick(true);
+    }
     const ac = new ActionCarousel(carousel);
 
     const editLabel = car.palette().spawn("b");

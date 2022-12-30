@@ -227,6 +227,10 @@ export default class NavportMouseController extends BasicMouseController {
         this._clickedNode = null;
       }
       this.setFocusedNode(selectedNode);
+      if (this.focusedNode().value().interact().immediateClick()) {
+        this._clickedNode = this.focusedNode();
+        this.clickFocusedNode(x, y);
+      }
       this.scheduleRepaint();
 
       return true;
@@ -254,18 +258,30 @@ export default class NavportMouseController extends BasicMouseController {
   }
 
   mouseup(button: any, downTime: number, x: number, y: number) {
-    const mouseInWorld = matrixTransform2D(
+    super.mouseup(button, downTime, x, y);
+    this._dragging = false;
+
+    // Do not continue if layout is not committed.
+    if (
+      !this.nav().root()?.value() ||
+      this.nav()
+        .root()
+        .value()
+        .getLayout()
+        .commitLayoutIteratively(INPUT_LAYOUT_TIME)
+    ) {
+      return true;
+    }
+
+    // Check for carousel click
+    const mouseInCarousel = matrixTransform2D(
       makeInverse3x3(this.carousel().camera().worldMatrix()),
       x,
       y
     );
-
-    super.mouseup(button, downTime, x, y);
-    this._dragging = false;
-
     const wasCarouselShown = this.carousel().isCarouselShown();
     if (
-      this.carousel().clickCarousel(mouseInWorld[0], mouseInWorld[1], false)
+      this.carousel().clickCarousel(mouseInCarousel[0], mouseInCarousel[1], false)
     ) {
       this.scheduleRepaint();
       return true;
@@ -279,49 +295,50 @@ export default class NavportMouseController extends BasicMouseController {
     }
     this.nav().input().impulse().resetImpulse();
 
+    if (this.focusedNode()?.value()?.interact()?.immediateClick()) {
+      return false;
+    }
+
+    const mouseInWorld = matrixTransform2D(
+      makeInverse3x3(this.nav().camera().worldMatrix()),
+      x,
+      y
+    );
+    return this.clickFocusedNode(mouseInWorld[0], mouseInWorld[1]);
+  }
+
+  clickFocusedNode(worldX: number, worldY: number): boolean {
+    const focusedNode = this.focusedNode();
+    if (!focusedNode) {
+      return false;
+    }
     if (
-      !this.nav().root()?.value() ||
-      this.nav()
-        .root()
+      !focusedNode
         .value()
         .getLayout()
-        .commitLayoutIteratively(INPUT_LAYOUT_TIME)
+        .inNodeBody(worldX, worldY)
     ) {
-      return true;
+      this._clickedNode = null;
+      return false;
     }
-
-    const selectedNode = this.focusedNode();
-    if (selectedNode) {
-      const mouseInWorld = matrixTransform2D(
-        makeInverse3x3(this.nav().camera().worldMatrix()),
-        x,
-        y
-      );
-      if (
-        !selectedNode
-          .value()
-          .getLayout()
-          .inNodeBody(mouseInWorld[0], mouseInWorld[1])
-      ) {
-        this._clickedNode = null;
-        return false;
-      }
+    // Do not click the node if it's not yet been clicked.
+    if (this._clickedNode === focusedNode) {
       // Check if the selected node has a click listener.
-      if (this._clickedNode === selectedNode) {
-        if (selectedNode.value().interact().hasClickListener()) {
-          if (selectedNode.value().interact().click()) {
-            this._clickedNode = null;
-          }
-          if (this.carousel().isCarouselShown()) {
-            this.carousel().setPos(mouseInWorld[0], mouseInWorld[1]);
-          }
-          this.scheduleRepaint();
+      if (focusedNode.value().interact().hasClickListener()) {
+        // Click the node.
+        if (focusedNode.value().interact().click()) {
+          // If true, then clear the node's selection.
+          this._clickedNode = null;
         }
-      } else {
-        this._clickedNode = selectedNode;
+        if (this.carousel().isCarouselShown()) {
+          this.carousel().setPos(worldX, worldY);
+        }
+        this.scheduleRepaint();
       }
+    } else {
+      // Make the clicked node the focused node.
+      this._clickedNode = focusedNode;
     }
-
     return false;
   }
 
