@@ -165,9 +165,9 @@ export default class NavportCursor {
       const layout = this.focusedNode().value().getLayout();
       const ctx = proj.overlay();
       proj.overlay().strokeStyle = "white";
-      proj.overlay().lineWidth = 4;
+      proj.overlay().lineWidth = 4 * layout.absoluteScale();
       proj.overlay().lineJoin = "round";
-      ctx.setLineDash([5]);
+      ctx.setLineDash([5 * layout.absoluteScale()]);
       const rect = layout.absoluteSizeRect();
       proj.overlay().save();
       proj.overlay().resetTransform();

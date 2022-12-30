@@ -47,6 +47,7 @@ const buildGraph = (comp: Navport) => {
     ac.install(car.node());
     car.pull(dir);
     car.move(dir);
+    car.shrink();
   }
   return root;
 };
