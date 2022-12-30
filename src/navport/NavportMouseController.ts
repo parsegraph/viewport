@@ -281,7 +281,11 @@ export default class NavportMouseController extends BasicMouseController {
     );
     const wasCarouselShown = this.carousel().isCarouselShown();
     if (
-      this.carousel().clickCarousel(mouseInCarousel[0], mouseInCarousel[1], false)
+      this.carousel().clickCarousel(
+        mouseInCarousel[0],
+        mouseInCarousel[1],
+        false
+      )
     ) {
       this.scheduleRepaint();
       return true;
@@ -312,12 +316,7 @@ export default class NavportMouseController extends BasicMouseController {
     if (!focusedNode) {
       return false;
     }
-    if (
-      !focusedNode
-        .value()
-        .getLayout()
-        .inNodeBody(worldX, worldY)
-    ) {
+    if (!focusedNode.value().getLayout().inNodeBody(worldX, worldY)) {
       this._clickedNode = null;
       return false;
     }

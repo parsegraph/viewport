@@ -6,7 +6,7 @@ export default class NavportWebOverlay implements Projected {
   _update: Method;
   _size: number;
 
-  constructor(size:number = 1) {
+  constructor(size: number = 1) {
     this._iframes = new Map();
     this._update = new Method();
     this.setSize(size);
@@ -115,7 +115,7 @@ export default class NavportWebOverlay implements Projected {
       return true;
     }
     if (iframe[1]) {
-      //console.log("Web overlay render", this._size, this.url());
+      // console.log("Web overlay render", this._size, this.url());
       const margin =
         projector.width() > projector.height()
           ? projector.height() - this._size * projector.height()

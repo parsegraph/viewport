@@ -57,7 +57,7 @@ export default class Navport implements Projected {
     this._input = new InputController(this);
     this._carousel = new Carousel(new Camera());
     this._carousel.setOnScheduleRepaint(this.scheduleRepaint, this);
-    this._webOverlay = new NavportWebOverlay(.85);
+    this._webOverlay = new NavportWebOverlay(0.85);
 
     this._inputLayer = new Map();
 
