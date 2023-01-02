@@ -67,7 +67,7 @@ export default class Carousel implements Projected {
     this._carouselHotkeys = {};
 
     // Location of the carousel, in world coordinates.
-    this._carouselSize = 25 / window.visualViewport.scale;
+    this._carouselSize = 25;
 
     this._showCarousel = false;
 
@@ -365,8 +365,7 @@ export default class Carousel implements Projected {
     }
     // console.log("Show scale is " + this._showScale);
 
-    let minScale = 1;
-    this._carouselPlots.forEach(function (carouselData, i) {
+    this._carouselPlots.forEach((carouselData, i)=>{
       const root = carouselData.node;
       const rootLayout = root.value().getLayout();
       rootLayout.commitLayoutIteratively();
@@ -380,37 +379,7 @@ export default class Carousel implements Projected {
         2 * this._carouselSize * this._showScale * Math.cos(caretRad);
       carouselData.y =
         2 * this._carouselSize * this._showScale * Math.sin(caretRad);
-
-      // Set the scale.
-      const commandSize = rootLayout.extentSize();
-      const xMax = MAX_CAROUSEL_SIZE;
-      const yMax = MAX_CAROUSEL_SIZE;
-      let xShrinkFactor = 1;
-      let yShrinkFactor = 1;
-      if (commandSize.width() > xMax) {
-        xShrinkFactor = commandSize.width() / xMax;
-      }
-      if (commandSize.height() > yMax) {
-        yShrinkFactor = commandSize.height() / yMax;
-      }
-      // console.log(
-      //   commandSize.width(),
-      //   commandSize.height(),
-      //   1/Math.max(xShrinkFactor,
-      //   yShrinkFactor));
-      minScale = Math.min(
-        minScale,
-        this._showScale / Math.max(xShrinkFactor, yShrinkFactor)
-      );
-    }, this);
-
-    this._carouselPlots.forEach(function (carouselData, i) {
-      if (i === this._selectedCarouselPlotIndex) {
-        carouselData.scale = 1.25 * minScale / window.visualViewport.scale;
-      } else {
-        carouselData.scale = minScale / window.visualViewport.scale;
-      }
-    }, this);
+    });
   }
 
   setOnScheduleRepaint(func: Function, thisArg?: any) {
@@ -490,7 +459,7 @@ export default class Carousel implements Projected {
     carouselCam.setSize(this.camera().width(), this.camera().height());
     carouselCam.copy(this.camera());
     const world = matrixMultiply3x3(
-      makeScale3x3(1 / carouselCam.scale()),
+      makeScale3x3((1 / window.visualViewport.scale) / carouselCam.scale()),
       carouselCam.project()
     );
     const gl = proj.glProvider().gl();
@@ -507,7 +476,7 @@ export default class Carousel implements Projected {
       graphCam.setSize(this.camera().width(), this.camera().height());
       graphCam.copy(carouselCam);
       graphCam.adjustOrigin(carouselData.x, carouselData.y);
-      graphCam.setScale(1);
+      graphCam.setScale(1/window.visualViewport.scale);
 
       carouselData.painter.setCamera(graphCam);
       carouselData.painter.render(proj);

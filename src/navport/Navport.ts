@@ -357,7 +357,7 @@ export default class Navport implements Projected {
     }
     // this._piano.render(world, cam.scale());
     if (this.carousel().isCarouselShown() && !projector.isOffscreen()) {
-      const scale = this.camera().scale();
+      const scale = this.camera().scale()*window.visualViewport.scale;
       const [carouselX, carouselY] = this.carousel().getPos();
       const x = this.camera().x() * scale + carouselX * scale;
       const y = this.camera().y() * scale + carouselY * scale;
@@ -365,7 +365,7 @@ export default class Navport implements Projected {
       cam.copy(this.camera());
       cam.setSize(this.camera().width(), this.camera().height());
       cam.setOrigin(x, y);
-      cam.setScale(1);
+      cam.setScale(1/window.visualViewport.scale);
       this._carousel.render(inputProj);
     }
     if (
