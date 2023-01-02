@@ -206,6 +206,9 @@ export default class Navport implements Projected {
     }
     let needsUpdate = false;
     if (this.needsRepaint()) {
+      if (this.focusedNode() && this.focusedNode().root() !== this.root()) {
+        this.input().cursor().setFocusedNode(null);
+      }
       needsUpdate = this._painter.paint(projector, timeout);
 
       let inputProj;
