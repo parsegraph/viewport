@@ -88,6 +88,10 @@ export default class NavportMouseController extends BasicMouseController {
       return true;
     }
 
+    if (this.carousel().isCarouselShown()) {
+      return true;
+    }
+
     const mouseInWorld = matrixTransform2D(
       makeInverse3x3(this.nav().camera().worldMatrix()),
       x,
