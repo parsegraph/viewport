@@ -67,7 +67,7 @@ export default class Carousel implements Projected {
     this._carouselHotkeys = {};
 
     // Location of the carousel, in world coordinates.
-    this._carouselSize = 25;
+    this._carouselSize = 25 / window.visualViewport.scale;
 
     this._showCarousel = false;
 
@@ -507,7 +507,7 @@ export default class Carousel implements Projected {
       graphCam.setSize(this.camera().width(), this.camera().height());
       graphCam.copy(carouselCam);
       graphCam.adjustOrigin(carouselData.x, carouselData.y);
-      graphCam.setScale(1);
+      graphCam.setScale(1/window.visualViewport.scale);
 
       carouselData.painter.setCamera(graphCam);
       carouselData.painter.render(proj);
