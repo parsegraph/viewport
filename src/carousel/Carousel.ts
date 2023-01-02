@@ -406,9 +406,9 @@ export default class Carousel implements Projected {
 
     this._carouselPlots.forEach(function (carouselData, i) {
       if (i === this._selectedCarouselPlotIndex) {
-        carouselData.scale = 1.25 * minScale;
+        carouselData.scale = 1.25 * minScale / window.visualViewport.scale;
       } else {
-        carouselData.scale = minScale;
+        carouselData.scale = minScale / window.visualViewport.scale;
       }
     }, this);
   }
@@ -507,7 +507,7 @@ export default class Carousel implements Projected {
       graphCam.setSize(this.camera().width(), this.camera().height());
       graphCam.copy(carouselCam);
       graphCam.adjustOrigin(carouselData.x, carouselData.y);
-      graphCam.setScale(1/window.visualViewport.scale);
+      graphCam.setScale(1);
 
       carouselData.painter.setCamera(graphCam);
       carouselData.painter.render(proj);
