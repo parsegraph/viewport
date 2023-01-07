@@ -9,7 +9,7 @@ import { ActionCarousel } from "./carousel";
 import Color from "parsegraph-color";
 import render from "./render";
 import { DirectionNode } from "parsegraph-direction";
-import { DOMContent, DOMContentArtist } from "parsegraph-artist"
+import { DOMContent, DOMContentArtist } from "parsegraph-artist";
 import Camera from "parsegraph-camera";
 
 const artist = new DOMContentArtist();
@@ -19,12 +19,15 @@ const makeNode = (cam: Camera, onUpdate: () => void): DirectionNode => {
   const node = new DirectionNode();
   const size = 24; // Math.ceil(36 * Math.random());
   // co
+  const div = document.createElement("div");
   const c = document.createElement("textarea");
   c.style.fontSize = size + "px";
   c.style.pointerEvents = "all";
   c.style.zIndex = "1";
   c.innerText = "DOMCONTENT" + COUNT++;
-  const val = new DOMContent(() => c);
+  c.style.boxSizing = "border-box";
+  div.appendChild(c);
+  const val = new DOMContent(() => div);
   val.interact().setClickListener(() => {
     onUpdate();
     return false;
@@ -59,7 +62,7 @@ const buildGraph = (comp: Navport) => {
     car.pull(dir);
     car.move(dir);
 
-    const dom = makeNode(comp.camera(), ()=>comp.scheduleRepaint());
+    const dom = makeNode(comp.camera(), () => comp.scheduleRepaint());
     car.node().connectNode(Direction.INWARD, dom);
 
     car.node().value().setLabel(nameDirection(dir));
