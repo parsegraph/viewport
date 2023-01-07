@@ -9,6 +9,7 @@ SCRIPT_FILES = \
 	src/carousel/CarouselAction.ts \
 	src/carousel/demo.ts \
 	src/index.ts \
+	src/demoDom.ts \
 	src/navport/impulse.ts \
 	src/navport/NavportMouseController.ts \
 	src/navport/NavportCursor.ts \
