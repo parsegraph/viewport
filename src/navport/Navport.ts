@@ -216,6 +216,7 @@ export default class Navport implements Projected {
         inputProj = new BasicProjector();
         const container = inputProj.glProvider().container();
         projector.glProvider().container().appendChild(container);
+        container.style.zIndex = "0";
         container.style.left = "0px";
         container.style.top = "0px";
         container.style.right = "0px";
