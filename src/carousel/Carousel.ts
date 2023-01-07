@@ -365,7 +365,7 @@ export default class Carousel implements Projected {
     }
     // console.log("Show scale is " + this._showScale);
 
-    this._carouselPlots.forEach((carouselData, i)=>{
+    this._carouselPlots.forEach((carouselData, i) => {
       const root = carouselData.node;
       const rootLayout = root.value().getLayout();
       rootLayout.commitLayoutIteratively();
@@ -459,7 +459,7 @@ export default class Carousel implements Projected {
     carouselCam.setSize(this.camera().width(), this.camera().height());
     carouselCam.copy(this.camera());
     const world = matrixMultiply3x3(
-      makeScale3x3((1 / window.visualViewport.scale) / carouselCam.scale()),
+      makeScale3x3(1 / window.visualViewport.scale / carouselCam.scale()),
       carouselCam.project()
     );
     const gl = proj.glProvider().gl();
@@ -476,7 +476,7 @@ export default class Carousel implements Projected {
       graphCam.setSize(this.camera().width(), this.camera().height());
       graphCam.copy(carouselCam);
       graphCam.adjustOrigin(carouselData.x, carouselData.y);
-      graphCam.setScale(1/window.visualViewport.scale);
+      graphCam.setScale(1 / window.visualViewport.scale);
 
       carouselData.painter.setCamera(graphCam);
       carouselData.painter.render(proj);
