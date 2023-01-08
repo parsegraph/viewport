@@ -147,6 +147,7 @@ export default class Navport implements Projected {
   scheduleRepaint() {
     // console.log("Viewport is scheduling repaint");
     this.scheduleUpdate();
+    this._painter.markDirty();
     this._needsRepaint = true;
     this._needsRender = true;
   }
