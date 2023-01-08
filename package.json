@@ -57,7 +57,7 @@
   "dependencies": {
     "parsegraph-animatedspotlight": "^2.0.41",
     "parsegraph-fanpainter": "^1.6.15",
-    "parsegraph-graphpainter": "^2.5.43",
+    "parsegraph-graphpainter": "^2.5.44",
     "parsegraph-texturepainter": "^1.6.14"
   }
 }
