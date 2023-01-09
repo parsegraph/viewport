@@ -55,9 +55,9 @@
     "parsegraph-log": "^1.9.0"
   },
   "dependencies": {
-    "parsegraph-animatedspotlight": "^2.0.45",
+    "parsegraph-animatedspotlight": "^2.0.46",
     "parsegraph-fanpainter": "^1.6.15",
-    "parsegraph-graphpainter": "^2.6.6",
+    "parsegraph-graphpainter": "^2.6.7",
     "parsegraph-texturepainter": "^1.6.14"
   }
 }
