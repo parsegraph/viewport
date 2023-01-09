@@ -4052,14 +4052,14 @@ parse5@^7.1.1:
   dependencies:
     entities "^4.4.0"
 
-parsegraph-animatedspotlight@^2.0.43:
-  version "2.0.43"
-  resolved "https://registry.yarnpkg.com/parsegraph-animatedspotlight/-/parsegraph-animatedspotlight-2.0.43.tgz#548a8e452d0329dfc19b45441c114804e8fb0648"
-  integrity sha512-hjLboUg/LAF1mezqstYATxx9fCHtMJr9BNlJ64ziPjjkOK1heWgoZTBl2O/m007o93OBWjPtRv7lu5mJWIuJOQ==
+parsegraph-animatedspotlight@^2.0.45:
+  version "2.0.45"
+  resolved "https://registry.yarnpkg.com/parsegraph-animatedspotlight/-/parsegraph-animatedspotlight-2.0.45.tgz#46191f1274b96b25faf6f440ce972469f256bc3b"
+  integrity sha512-EFvg4HCBDvSzkC7fQC1+dTFuUfpHsAobRjpqFpnKvUmDd8+P06yRfIoAgvWmEWpR6QEMW3R5ztPZ9dv9ERduNg==
   dependencies:
     parsegraph-animator "^1.5.9"
     parsegraph-color "^1.4.10"
-    parsegraph-layout "^1.13.11"
+    parsegraph-layout "^1.13.13"
     parsegraph-lerp "^1.5.10"
     parsegraph-matrix "^1.4.13"
     parsegraph-method "^1.4.23"
@@ -4197,18 +4197,6 @@ parsegraph-interact@^1.7.3:
   dependencies:
     parsegraph-input "^2.0.8"
     parsegraph-method "^1.4.23"
-
-parsegraph-layout@^1.13.11:
-  version "1.13.11"
-  resolved "https://registry.yarnpkg.com/parsegraph-layout/-/parsegraph-layout-1.13.11.tgz#a9b4ab0f02a3107efa6adebf78a2b25e0c0ec349"
-  integrity sha512-S7POvYYWHPZTHSuhxTtqMbcYJEZr0245hlbprAvASzLhJI0RSo8C/GF3OeJlqwaZkVEBlKLR+UktqCKOY89ANQ==
-  dependencies:
-    jest-environment-jsdom "^29.3.1"
-    parsegraph-direction "^2.1.4"
-    parsegraph-extent "^1.4.12"
-    parsegraph-rect "^1.5.2"
-    parsegraph-size "^1.7.2"
-    parsegraph-timing "^1.4.17"
 
 parsegraph-layout@^1.13.13:
   version "1.13.13"
