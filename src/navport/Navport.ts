@@ -386,7 +386,7 @@ export default class Navport implements Projected {
     }
 
     needsUpdate = Boolean(needsUpdate);
-    logc("Viewport renders", "Render complete", needsUpdate);
+    logc("Viewport renders", needsUpdate ? "Render needs more time" : "Render complete");
     return needsUpdate;
   }
 }
