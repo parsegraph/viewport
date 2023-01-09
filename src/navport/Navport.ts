@@ -237,7 +237,8 @@ export default class Navport implements Projected {
 
     this._needsRender = this._needsRender || this._needsRepaint;
     if (needsUpdate) {
-      this.scheduleRepaint();
+      this.scheduleUpdate();
+      this._needsRepaint = true;
     } else {
       this._needsRepaint = false;
     }
