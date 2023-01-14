@@ -15,17 +15,21 @@ import Camera from "parsegraph-camera";
 const artist = new DOMContentArtist();
 
 let COUNT = 0;
-const makeNode = (cam: Camera, onUpdate: () => void): DirectionNode => {
-  const node = new DirectionNode();
+const makeDom = (onUpdate: () => void, onClose: () => void): DOMContent => {
   const size = 24; // Math.ceil(36 * Math.random());
   // co
   const div = document.createElement("div");
-  const c = document.createElement("textarea");
+  const c = document.createElement("input");
   c.style.fontSize = size + "px";
   c.style.pointerEvents = "all";
   c.style.zIndex = "1";
   c.innerText = "DOMCONTENT" + COUNT++;
   c.style.boxSizing = "border-box";
+  c.addEventListener("keypress", (e)=>{
+    if (e.key === "Enter") {
+      onClose();
+    }
+  });
   div.appendChild(c);
   const val = new DOMContent(() => div);
   val.interact().setClickListener(() => {
@@ -33,9 +37,14 @@ const makeNode = (cam: Camera, onUpdate: () => void): DirectionNode => {
     return false;
   });
   val.setArtist(artist);
-  val.setNode(node);
   val.setOnScheduleUpdate(onUpdate);
-  node.setValue(val);
+  return val;
+};
+const makeNode = (cam: Camera, onUpdate: () => void): DirectionNode => {
+  const node = new DirectionNode();
+  const dom = makeDom(onUpdate, ()=>{});
+  dom.setNode(node);
+  node.setValue(dom);
   return node;
 };
 
@@ -62,8 +71,18 @@ const buildGraph = (comp: Navport) => {
     car.pull(dir);
     car.move(dir);
 
-    const dom = makeNode(comp.camera(), () => comp.scheduleRepaint());
-    car.node().connectNode(Direction.INWARD, dom);
+    car.node().value().interact().setClickListener(function () {
+      let oldVal:Block;
+      const dom = makeDom(() => comp.scheduleRepaint(), ()=>{
+        (this as DirectionNode).setValue(oldVal);
+        comp.scheduleRepaint();
+      });
+      dom.setNode(this as DirectionNode);
+      oldVal = this.value();
+      (this as DirectionNode).setValue(dom);
+      comp.scheduleRepaint();
+      return true;
+    }, car.node());
 
     car.node().value().setLabel(nameDirection(dir));
     car.shrink();
