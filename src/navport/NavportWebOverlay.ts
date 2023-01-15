@@ -2,7 +2,7 @@ import { Projected, Projector } from "parsegraph-projector";
 import Method from "parsegraph-method";
 
 export default class NavportWebOverlay implements Projected {
-  _iframes: Map<Projector, [HTMLDivElement, HTMLIFrameElement]>;
+  _iframes: Map<Projector, [HTMLDivElement, HTMLIFrameElement, ()=>void]>;
   _update: Method;
   _size: number;
 
@@ -48,6 +48,7 @@ export default class NavportWebOverlay implements Projected {
     const iframe = this._iframes.get(projector);
     if (iframe) {
       iframe[0].remove();
+      iframe[2]?.();
       this._iframes.delete(projector);
     }
   }
@@ -55,6 +56,7 @@ export default class NavportWebOverlay implements Projected {
   dispose() {
     this._iframes.forEach((iframe) => {
       iframe[0].remove();
+      iframe[2]?.();
     });
     this._iframes.clear();
   }
@@ -93,10 +95,10 @@ export default class NavportWebOverlay implements Projected {
       iframe.style.border = "0";
       iframe.src = this.url() as string;
       border.appendChild(iframe);
-      this._iframes.set(projector, [border, iframe]);
+      this._iframes.set(projector, [border, iframe, null]);
     } else {
-      (this.url() as Function)(border);
-      this._iframes.set(projector, [border, null]);
+      const remover = (this.url() as Function)(border);
+      this._iframes.set(projector, [border, null, remover]);
     }
     projector.getDOMContainer().appendChild(border);
     return false;
