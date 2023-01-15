@@ -40,31 +40,28 @@ const buildGraph = (comp: Navport) => {
       .setClickListener(() => {
         web.setSize(0.75);
         web.show((par) => {
-          const div = document.createElement("div");
-          div.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          });
-          div.innerHTML =
-            "<div style='border-radius: 6px; background: white; padding: 6px; pointer-events: auto'></div>";
-          const text = document.createElement("input");
-          text.style.fontSize = "2em";
-          div.childNodes[0].appendChild(text);
-          text.addEventListener("change", () => {
-            n.value().setLabel(text.value);
+          const iframe = document.createElement("iframe");
+          iframe.width = "500";
+          iframe.height = "300";
+          const callbackId = Math.floor(Math.random() * 999999999);
+
+          const params = new URLSearchParams();
+          params.set("cb", String(callbackId));
+          params.set("val", n.value().label());
+
+          iframe.src = `/overlay?${params.toString()}`;
+          (window as any)["callback_"+callbackId] = (val:string)=>{
             web.close();
-          });
-          text.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              n.value().setLabel(text.value);
-              web.close();
+            if (val === null) {
+              return;
             }
-          });
-          text.value = n.value().label();
-          setTimeout(() => {
-            text.focus();
-          }, 0);
-          par.appendChild(div);
+            n.value().setLabel(val);
+            comp.scheduleRepaint();
+          };
+          par.appendChild(iframe);
+          return ()=>{
+            delete (window as any)["callback_"+callbackId];
+          };
         });
         comp.scheduleRepaint();
         return true;
@@ -79,9 +76,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const comp = new Navport(null);
   const root = buildGraph(comp);
   comp.setRoot(root);
-  comp.menu().setSearchCallback((cmd: string) => {
-    alert(cmd);
-  });
 
   render(document.getElementById("demo"), comp);
+  comp.scheduleRepaint();
+  comp.showInCamera(root);
 });

@@ -59,6 +59,9 @@ async function getDemos(): Promise<string[]> {
     });
   });
 }
+import webOverlay from "./weboverlay";
+
+webOverlay(app);
 
 app.get(root, async (req, res) => {
   let resp = "";
