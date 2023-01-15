@@ -169,10 +169,23 @@ export default class NavportCursor {
       proj.overlay().lineJoin = "round";
       ctx.setLineDash([5 * layout.absoluteScale()]);
       const rect = layout.absoluteSizeRect();
-      logc("Rendering", "Rendering navport cursor at absolute pos {0}", rect.toString());
+      logc(
+        "Rendering",
+        "Rendering navport cursor at absolute pos {0}",
+        rect.toString()
+      );
 
-      logc("Rendering", "Navport cursor group size {0}", layout.groupSizeRect().toString());
-      logc("Rendering", "Navport cursor local pos {0}, {1}",  this.focusedNode().x(), this.focusedNode().y());
+      logc(
+        "Rendering",
+        "Navport cursor group size {0}",
+        layout.groupSizeRect().toString()
+      );
+      logc(
+        "Rendering",
+        "Navport cursor local pos {0}, {1}",
+        this.focusedNode().x(),
+        this.focusedNode().y()
+      );
       proj.overlay().save();
       proj.overlay().resetTransform();
       const sc = this.camera().scale();

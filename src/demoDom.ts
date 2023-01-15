@@ -25,7 +25,7 @@ const makeDom = (onUpdate: () => void, onClose: () => void): DOMContent => {
   c.style.zIndex = "1";
   c.innerText = "DOMCONTENT" + COUNT++;
   c.style.boxSizing = "border-box";
-  c.addEventListener("keypress", (e)=>{
+  c.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       onClose();
     }
@@ -42,7 +42,7 @@ const makeDom = (onUpdate: () => void, onClose: () => void): DOMContent => {
 };
 const makeNode = (cam: Camera, onUpdate: () => void): DirectionNode => {
   const node = new DirectionNode();
-  const dom = makeDom(onUpdate, ()=>{});
+  const dom = makeDom(onUpdate, () => {});
   dom.setNode(node);
   node.setValue(dom);
   return node;
@@ -71,18 +71,25 @@ const buildGraph = (comp: Navport) => {
     car.pull(dir);
     car.move(dir);
 
-    car.node().value().interact().setClickListener(function () {
-      let oldVal:Block;
-      const dom = makeDom(() => comp.scheduleRepaint(), ()=>{
-        (this as DirectionNode).setValue(oldVal);
+    car
+      .node()
+      .value()
+      .interact()
+      .setClickListener(function () {
+        let oldVal: Block;
+        const dom = makeDom(
+          () => comp.scheduleRepaint(),
+          () => {
+            (this as DirectionNode).setValue(oldVal);
+            comp.scheduleRepaint();
+          }
+        );
+        dom.setNode(this as DirectionNode);
+        oldVal = this.value();
+        (this as DirectionNode).setValue(dom);
         comp.scheduleRepaint();
-      });
-      dom.setNode(this as DirectionNode);
-      oldVal = this.value();
-      (this as DirectionNode).setValue(dom);
-      comp.scheduleRepaint();
-      return true;
-    }, car.node());
+        return true;
+      }, car.node());
 
     car.node().value().setLabel(nameDirection(dir));
     car.shrink();

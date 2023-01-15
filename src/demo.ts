@@ -21,13 +21,13 @@ const buildGraph = (comp: Navport) => {
   const dirs = [
     Direction.FORWARD,
     Direction.DOWNWARD,
-    //Direction.INWARD,
+    // Direction.INWARD,
     Direction.UPWARD,
     Direction.BACKWARD,
   ];
   const MAX_RUNS = 6;
   let runs = 0;
-  const refresh = ()=>{
+  const refresh = () => {
     for (let i = 0; i < 3; ++i) {
       let dir = Direction.NULL;
       while (dir === Direction.NULL || car.has(dir)) {
@@ -59,7 +59,7 @@ const buildGraph = (comp: Navport) => {
       ac.install(car.node());
       car.pull(dir);
       car.move(dir);
-      //car.shrink();
+      // car.shrink();
       if (i % 4 === 0) {
         car.crease();
         car.node().value().setLabel("PaintGrooooooup");
@@ -73,14 +73,14 @@ const buildGraph = (comp: Navport) => {
     comp.showInCamera(car.root());
     showInCamera(car.root(), comp.camera(), true);
     comp.scheduleRepaint();
-  }
-  setInterval(()=>{
+  };
+  setInterval(() => {
     if (!RUNNING) {
       return;
     }
     if (runs > MAX_RUNS) {
       car.moveToRoot();
-      dirs.forEach(dir=>car.disconnect(dir));
+      dirs.forEach((dir) => car.disconnect(dir));
       runs = 0;
       return;
     }
@@ -93,17 +93,17 @@ const buildGraph = (comp: Navport) => {
 document.addEventListener("DOMContentLoaded", () => {
   const comp = new Navport(null);
   const root = buildGraph(comp);
-  //comp.showInCamera(root);
+  // comp.showInCamera(root);
   comp.setRoot(root);
   comp.menu().setSearchCallback((cmd: string) => {
     alert(cmd);
   });
   comp.scheduleRepaint();
 
-  const topElem = document.getElementById("demo")
+  const topElem = document.getElementById("demo");
   render(topElem, comp);
   setTimeout(() => {
-    //showInCamera(root, comp.camera(), false);
+    // showInCamera(root, comp.camera(), false);
   }, 0);
 
   const dot = document.createElement("div");
