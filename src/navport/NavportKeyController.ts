@@ -144,33 +144,43 @@ export default class NavportKeyController implements KeyController {
     switch (event.name()) {
       case MOVE_BACKWARD_KEY:
         this.clearImpulse();
-        return this.cursor().moveOutwardly(Direction.BACKWARD);
+        this.cursor().moveOutwardly(Direction.BACKWARD);
+        break;
       case MOVE_FORWARD_KEY:
         this.clearImpulse();
-        return this.cursor().moveForwardly(true);
+        this.cursor().moveForwardly(true);
+        break;
       case MOVE_TO_DOWNWARD_END_KEY:
         this.clearImpulse();
-        return this.cursor().moveToEnd(Direction.DOWNWARD);
+        this.cursor().moveToEnd(Direction.DOWNWARD);
+        break;
       case MOVE_TO_UPWARD_END_KEY:
         this.clearImpulse();
-        return this.cursor().moveToEnd(Direction.UPWARD);
+        this.cursor().moveToEnd(Direction.UPWARD);
+        break;
       case MOVE_TO_FORWARD_END_KEY:
         this.clearImpulse();
-        return this.cursor().moveToEnd(Direction.FORWARD);
+        this.cursor().moveToEnd(Direction.FORWARD);
+        break;
       case MOVE_TO_BACKWARD_END_KEY:
         this.clearImpulse();
-        return this.cursor().moveToEnd(Direction.BACKWARD);
+        this.cursor().moveToEnd(Direction.BACKWARD);
+        break;
       case MOVE_DOWNWARD_KEY:
         this.clearImpulse();
-        return this.cursor().moveInwardly(Direction.DOWNWARD);
+        this.cursor().moveInwardly(Direction.DOWNWARD);
+        break;
       case MOVE_UPWARD_KEY:
         this.clearImpulse();
-        return this.cursor().moveOutwardly(Direction.UPWARD);
+        this.cursor().moveOutwardly(Direction.UPWARD);
+        break;
       case "Backspace":
-        return this.cursor().moveFocus(Direction.OUTWARD);
+        this.cursor().moveFocus(Direction.OUTWARD);
+        break;
       default:
         return false;
     }
+    return true;
   }
 
   focusNavKey(event: Keystroke): boolean {
