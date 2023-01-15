@@ -53,17 +53,18 @@ export default class NavportCursor {
 
   setFocusedNode(focusedNode: PaintedNode) {
     if (focusedNode === this._focusedNode) {
-      return;
+      return false;
     }
     this._focusedNode = focusedNode;
     if (this._focusedNode) {
-      this.nav().showInCamera(this._focusedNode);
+      this.nav().focusedNodeChanged();
       this.carousel().clearCarousel();
       this.carousel().hideCarousel();
       this.carousel().scheduleCarouselRepaint();
       this._spotlight.restart(this._focusedNode);
     }
     this.nav().scheduleRepaint();
+    return true;
   }
 
   moveToEnd(dir: Direction): boolean {

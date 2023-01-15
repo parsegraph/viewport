@@ -11,6 +11,8 @@ import { GraphPainter } from "parsegraph-graphpainter";
 import FullscreenViewportDisplayMode from "./displaymode/fullscreen";
 import NavportWebOverlay from "./NavportWebOverlay";
 import log, { logc } from "parsegraph-log";
+import {Layout} from 'parsegraph-layout';
+import {showNodeInCamera} from 'parsegraph-showincamera';
 
 export const FOCUS_SCALE = 2;
 
@@ -40,6 +42,7 @@ export default class Navport implements Projected {
   _cursor: string;
   _inputLayer: Map<Projector, Projector>;
   _unmount: () => void;
+  _recenter: boolean;
 
   constructor(
     displayMode: ViewportDisplayMode = new FullscreenViewportDisplayMode(),
@@ -50,6 +53,7 @@ export default class Navport implements Projected {
     this._update = new Method();
     this._backgroundColor = backgroundColor;
     this._root = root;
+    this._recenter = false;
     this._camera = new Camera();
     this._painter = new GraphPainter(root, this._camera);
     this._displayMode = displayMode;
@@ -110,7 +114,16 @@ export default class Navport implements Projected {
   }
 
   tick(startDate: number): boolean {
-    return this._input.update(new Date(startDate));
+    const rv = this._input.update(new Date(startDate));
+
+    if (this.camera().canProject() && this.recenter() && this.focusedNode()) {
+      if (!this.camera().containsAll((this.focusedNode().value().getLayout() as Layout).absoluteSizeRect())) {
+        showNodeInCamera(this.focusedNode(), this.camera());
+      }
+    }
+    this._recenter = false;
+
+    return rv;
   }
 
   unmount(proj: Projector) {
@@ -255,12 +268,19 @@ export default class Navport implements Projected {
   }
 
   showInCamera(node: PaintedNode) {
+    if (this.focusedNode() === node) {
+      return;
+    }
     const noPrior = !this.focusedNode();
     this.input().cursor().setFocusedNode(node);
     if (noPrior && node) {
       this._cameraFilter.restart();
       this._cameraFilter.finish();
     }
+  }
+
+  focusedNodeChanged() {
+    this._recenter = true;
     this.scheduleRender();
   }
 
@@ -319,6 +339,10 @@ export default class Navport implements Projected {
     if (projector.hasDOMContainer()) {
       // console.log("Rendering DOM background");
     }
+  }
+
+  recenter() {
+    return this._recenter;
   }
 
   render(projector: Projector): boolean {
