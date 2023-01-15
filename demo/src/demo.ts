@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const { readFileSync, statSync } = require("fs");
 
-const { DIST_NAME } = require("../webpack.common");
+const { DIST_NAME } = require("../../webpack.common");
 
 const getPort = (port) => {
   if (statSync("../demo.port")) {
