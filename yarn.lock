@@ -4200,12 +4200,7 @@ parsegraph-size@^1.7.2:
   resolved "https://registry.yarnpkg.com/parsegraph-size/-/parsegraph-size-1.7.2.tgz#ce77df2079802b4e3143259e374b6ccb1ee5af1c"
   integrity sha512-2cCr4M4lP+G/N9+JGW7DQXIH08Bk8ySmoH/XOOgJg3Dhk+l1BcR/xNiVRcF5UY+5X/b5nWYoKfQ7wQxACl0fRA==
 
-parsegraph-smoothstep@^1.4.6:
-  version "1.4.6"
-  resolved "https://registry.yarnpkg.com/parsegraph-smoothstep/-/parsegraph-smoothstep-1.4.6.tgz#97c3cf75ddc246f5c2e0ac01d69f1ed06fcca71b"
-  integrity sha512-eJsNZVEoXg7nT0zbaKdV9CXnX1wTaziVjyfsJcv4XB8F+d0jrEnuiGjUP86K66rcJf9GXv26vbMcuGtCYGGmEA==
-
-parsegraph-smoothstep@^1.4.7:
+parsegraph-smoothstep@^1.4.6, parsegraph-smoothstep@^1.4.7:
   version "1.4.7"
   resolved "https://registry.yarnpkg.com/parsegraph-smoothstep/-/parsegraph-smoothstep-1.4.7.tgz#5e843ec409c93471d941a8e9d31e4d754be142b3"
   integrity sha512-4nmr0076aS07jrqzJkIEHEyv69P5UF/VVQo4xcj7UjpwhQyZJHNPYeX270D6kTpsiDH+IpogtMW0z83eppUmdg==
@@ -4253,9 +4248,9 @@ parsegraph-timingbelt@^1.8.1:
     parsegraph-timing "^1.4.17"
 
 parsegraph-toradians@^1.4.10:
-  version "1.4.10"
-  resolved "https://registry.yarnpkg.com/parsegraph-toradians/-/parsegraph-toradians-1.4.10.tgz#e79797c2af66f47c0760c7ab8d8ae18ca35a4a9f"
-  integrity sha512-bIwb7d293w1ffarSBMmz1Lziu8O3vNLrKmNWj9oF2Oq3SlhV3RDN+GLEq4IbLYzBmpPzpWVEtsVGmd9GcqV/Hg==
+  version "1.4.11"
+  resolved "https://registry.yarnpkg.com/parsegraph-toradians/-/parsegraph-toradians-1.4.11.tgz#d2d630bc739b4569818143e6b70c49fe6d78a82a"
+  integrity sha512-crT1jT4KswxcNlfVUGkLDCh9yOpMHB/wFFaBN4HWq9SJIfo5+Dk7pghBr/JcKLmgRq2rLKOdLLqu75SwIOY/9Q==
 
 path-exists@^3.0.0:
   version "3.0.0"
