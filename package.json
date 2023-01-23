@@ -19,7 +19,6 @@
     "parsegraph-log": "^1.9.2"
   },
   "peerDependencies": {
-    "parsegraph-checkglerror": "^1.5.7",
     "parsegraph-log": "^1.9.2"
   },
   "dependencies": {
