@@ -15,7 +15,6 @@
   },
   "homepage": "https://github.com/parsegraph/viewport#readme",
   "devDependencies": {
-    "parsegraph-checkglerror": "^1.5.7",
     "parsegraph-log": "^1.9.2"
   },
   "peerDependencies": {
