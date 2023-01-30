@@ -1,21 +1,21 @@
 {
-  "name": "parsegraph-TODO-PACKAGE-NAME-server",
+  "name": "parsegraph-viewport-server",
   "version": "1.6.0",
-  "description": "parsegraph TODO-PACKAGE-NAME server",
+  "description": "parsegraph viewport server",
   "main": "src/demo.ts",
   "scripts": {
     "start": "npx ts-node src/demo.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/parsegraph/TODO-PACKAGE-NAME.git"
+    "url": "git+ssh://git@github.com/parsegraph/viewport.git"
   },
   "author": "Rainback, Inc.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/parsegraph/TODO-PACKAGE-NAME/issues"
+    "url": "https://github.com/parsegraph/viewport/issues"
   },
-  "homepage": "https://github.com/parsegraph/TODO-PACKAGE-NAME#readme",
+  "homepage": "https://github.com/parsegraph/viewport#readme",
   "dependencies": {
     "express": "^4.17.2",
     "glob": "^7.2.0",
