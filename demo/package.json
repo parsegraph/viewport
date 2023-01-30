@@ -1,24 +1,29 @@
 {
-  "name": "parsegraph-microproject-server",
+  "name": "parsegraph-TODO-PACKAGE-NAME-server",
   "version": "1.6.0",
-  "description": "parsegraph microproject server",
-  "main": "demo.js",
+  "description": "parsegraph TODO-PACKAGE-NAME server",
+  "main": "src/demo.ts",
   "scripts": {
-    "build": "npx tsc src/demo.ts --skipLibCheck --outFile ./demo.js",
-    "start": "node demo.js"
+    "start": "npx ts-node src/demo.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/parsegraph/microproject.git"
+    "url": "git+ssh://git@github.com/parsegraph/TODO-PACKAGE-NAME.git"
   },
   "author": "Rainback, Inc.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/parsegraph/microproject/issues"
+    "url": "https://github.com/parsegraph/TODO-PACKAGE-NAME/issues"
   },
-  "homepage": "https://github.com/parsegraph/microproject#readme",
+  "homepage": "https://github.com/parsegraph/TODO-PACKAGE-NAME#readme",
   "dependencies": {
     "express": "^4.17.2",
-    "glob": "^7.2.0"
+    "glob": "^7.2.0",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.16",
+    "@types/node": "^18.11.18",
+    "typescript": "^4.9.4"
   }
 }
