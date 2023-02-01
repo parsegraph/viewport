@@ -50,7 +50,7 @@ const buildGraph = (comp: Navport) => {
           params.set("val", n.value().label());
 
           iframe.src = `/overlay?${params.toString()}`;
-          (window as any)["callback_"+callbackId] = (val:string)=>{
+          (window as any)["callback_" + callbackId] = (val: string) => {
             web.close();
             if (val === null) {
               return;
@@ -59,8 +59,8 @@ const buildGraph = (comp: Navport) => {
             comp.scheduleRepaint();
           };
           par.appendChild(iframe);
-          return ()=>{
-            delete (window as any)["callback_"+callbackId];
+          return () => {
+            delete (window as any)["callback_" + callbackId];
           };
         });
         comp.scheduleRepaint();

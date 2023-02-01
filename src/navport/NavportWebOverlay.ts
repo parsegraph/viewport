@@ -2,7 +2,7 @@ import { Projected, Projector } from "parsegraph-projector";
 import Method from "parsegraph-method";
 
 export default class NavportWebOverlay implements Projected {
-  _iframes: Map<Projector, [HTMLDivElement, HTMLIFrameElement, ()=>void]>;
+  _iframes: Map<Projector, [HTMLDivElement, HTMLIFrameElement, () => void]>;
   _update: Method;
   _size: number;
 

@@ -11,8 +11,8 @@ import { GraphPainter } from "parsegraph-graphpainter";
 import FullscreenViewportDisplayMode from "./displaymode/fullscreen";
 import NavportWebOverlay from "./NavportWebOverlay";
 import log, { logc } from "parsegraph-log";
-import {Layout} from 'parsegraph-layout';
-import {showNodeInCamera} from 'parsegraph-showincamera';
+import { Layout } from "parsegraph-layout";
+import { showNodeInCamera } from "parsegraph-showincamera";
 
 export const FOCUS_SCALE = 2;
 
@@ -117,7 +117,11 @@ export default class Navport implements Projected {
     const rv = this._input.update(new Date(startDate));
 
     if (this.camera().canProject() && this.recenter() && this.focusedNode()) {
-      if (!this.camera().containsAll((this.focusedNode().value().getLayout() as Layout).absoluteSizeRect())) {
+      if (
+        !this.camera().containsAll(
+          (this.focusedNode().value().getLayout() as Layout).absoluteSizeRect()
+        )
+      ) {
         showNodeInCamera(this.focusedNode(), this.camera());
       }
     }
