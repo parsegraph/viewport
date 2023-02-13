@@ -37,8 +37,8 @@
     "jest-environment-jsdom": "^29.3.1",
     "jsdom": "^21.1.0",
     "jsdom-global": "^3.0.2",
-    "parsegraph-checkglerror": "^1.5.7",
-    "parsegraph-log": "^1.9.2",
+    "parsegraph-checkglerror": "^1.5.8",
+    "parsegraph-log": "^1.9.3",
     "prettier": "^2.8.3",
     "raw-loader": "^4.0.2",
     "source-map-loader": "^4.0.1",
@@ -51,31 +51,31 @@
     "webpack-cli": "^5.0.1"
   },
   "peerDependencies": {
-    "parsegraph-checkglerror": "^1.5.7",
-    "parsegraph-log": "^1.9.2"
+    "parsegraph-checkglerror": "^1.5.8",
+    "parsegraph-log": "^1.9.3"
   },
   "dependencies": {
-    "parsegraph-animatedspotlight": "^2.0.50",
+    "parsegraph-animatedspotlight": "^2.0.53",
     "parsegraph-animator": "^1.5.10",
-    "parsegraph-artist": "^3.4.64",
-    "parsegraph-block": "^4.6.22",
+    "parsegraph-artist": "^3.4.67",
+    "parsegraph-block": "^4.6.25",
     "parsegraph-camera": "^1.4.22",
     "parsegraph-color": "^1.4.12",
-    "parsegraph-compileprogram": "^2.2.21",
-    "parsegraph-direction": "^2.2.4",
+    "parsegraph-compileprogram": "^2.2.23",
+    "parsegraph-direction": "^2.3.0",
     "parsegraph-fanpainter": "^1.6.19",
     "parsegraph-fuzzyequals": "^1.4.12",
-    "parsegraph-graphpainter": "^2.6.13",
+    "parsegraph-graphpainter": "^2.6.16",
     "parsegraph-input": "^2.0.10",
-    "parsegraph-layout": "^1.13.17",
+    "parsegraph-layout": "^1.13.20",
     "parsegraph-lerp": "^1.5.11",
     "parsegraph-matrix": "^1.4.15",
     "parsegraph-method": "^1.4.25",
-    "parsegraph-projector": "^1.14.10",
-    "parsegraph-showincamera": "^1.7.15",
+    "parsegraph-projector": "^1.14.12",
+    "parsegraph-showincamera": "^1.7.18",
     "parsegraph-smoothstep": "^1.4.8",
     "parsegraph-texturepainter": "^1.6.17",
-    "parsegraph-timing": "^1.4.19",
-    "parsegraph-timingbelt": "^1.8.3"
+    "parsegraph-timing": "^1.4.20",
+    "parsegraph-timingbelt": "^1.8.4"
   }
 }
