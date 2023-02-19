@@ -65,7 +65,7 @@
     "parsegraph-direction": "^2.3.0",
     "parsegraph-fanpainter": "^1.6.19",
     "parsegraph-fuzzyequals": "^1.4.12",
-    "parsegraph-graphpainter": "^2.6.19",
+    "parsegraph-graphpainter": "^2.7.0",
     "parsegraph-input": "^2.0.10",
     "parsegraph-layout": "^1.15.0",
     "parsegraph-lerp": "^1.5.11",
