@@ -55,24 +55,13 @@
     "parsegraph-log": "^1.9.3"
   },
   "dependencies": {
-    "parsegraph-animatedspotlight": "^2.0.58",
+    "parsegraph-animatedspotlight": "^2.0.59",
     "parsegraph-animator": "^1.5.10",
-    "parsegraph-artist": "^3.4.72",
-    "parsegraph-block": "^4.7.4",
-    "parsegraph-camera": "^1.4.22",
     "parsegraph-compileprogram": "^2.2.23",
     "parsegraph-fanpainter": "^1.6.19",
     "parsegraph-fuzzyequals": "^1.4.12",
-    "parsegraph-graphpainter": "^2.7.2",
-    "parsegraph-layout": "^1.16.0",
+    "parsegraph-graphpainter": "^2.7.3",
     "parsegraph-lerp": "^1.5.11",
-    "parsegraph-matrix": "^1.4.15",
-    "parsegraph-method": "^1.4.25",
-    "parsegraph-projector": "^1.14.12",
-    "parsegraph-showincamera": "^1.7.23",
-    "parsegraph-smoothstep": "^1.4.8",
-    "parsegraph-texturepainter": "^1.6.17",
-    "parsegraph-timing": "^1.4.20",
-    "parsegraph-timingbelt": "^1.8.4"
+    "parsegraph-texturepainter": "^1.6.17"
   }
 }
