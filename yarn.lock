@@ -4112,15 +4112,6 @@ parsegraph-graphpainter@^2.7.2:
   dependencies:
     parsegraph-block "^4.7.4"
 
-parsegraph-input@^2.0.10:
-  version "2.0.10"
-  resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-2.0.10.tgz#e029a110dd63f51ed063ce5c928458c760d55e83"
-  integrity sha512-49Lkp61P2PFPtI5Nweze/uxzn5xeDQW634xOguxoH5QZS+oX1HcOxVywJtCzZUJw1yIXbjqperBR0l2SiXM0wA==
-  dependencies:
-    parsegraph-fuzzyequals "^1.4.12"
-    parsegraph-matrix "^1.4.15"
-    parsegraph-normalizewheel "^1.4.9"
-
 parsegraph-input@^2.0.12:
   version "2.0.12"
   resolved "https://registry.yarnpkg.com/parsegraph-input/-/parsegraph-input-2.0.12.tgz#f2f91d203ac09a5c02cf8b86739f232cc3058c98"
@@ -4188,11 +4179,6 @@ parsegraph-normalizewheel@^1.4.10:
   version "1.4.10"
   resolved "https://registry.yarnpkg.com/parsegraph-normalizewheel/-/parsegraph-normalizewheel-1.4.10.tgz#4c7a774223e5804ec30c167b21f240ec8c3fef85"
   integrity sha512-Iz7WqcMgJDbXNbJnN9uWV2xI8txXbiVWarzDflyL98t+Z4Fx8rYZ/n7RHKeJBw/K0mlC4UkzZHkbfyyPakHlbQ==
-
-parsegraph-normalizewheel@^1.4.9:
-  version "1.4.9"
-  resolved "https://registry.yarnpkg.com/parsegraph-normalizewheel/-/parsegraph-normalizewheel-1.4.9.tgz#c4fcbebdd4803d458d486565b1f91f2d90ef19ad"
-  integrity sha512-QqSNDEzTMgMhddJeyDPn/pwI04ytBrdNMSJWix5+yv/fawSWOkmhrfc2sVKvjEVgYCnQosfQAC6w5aQ54QLUcg==
 
 parsegraph-pagingbuffer@^2.1.7:
   version "2.1.7"
