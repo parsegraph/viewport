@@ -360,7 +360,6 @@ export default class Navport implements Projected {
   }
 
   render(projector: Projector): boolean {
-    // width: number, height: number, avoidIfPossible: boolean): boolean {
     const overlay = projector.overlay();
     overlay.resetTransform();
     overlay.clearRect(0, 0, projector.width(), projector.height());
