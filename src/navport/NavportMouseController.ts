@@ -10,6 +10,7 @@ import { PaintedNode } from "parsegraph-artist";
 import { logc } from "parsegraph-log";
 import { INTERVAL } from "parsegraph-timingbelt";
 import { MIN_CAMERA_SCALE } from "./Navport";
+import { Direction } from "parsegraph-direction";
 
 // How many milliseconds to commit a layout if an input event is detected.
 export const INPUT_LAYOUT_TIME = INTERVAL;
@@ -362,19 +363,22 @@ export default class NavportMouseController extends BasicMouseController {
     // Adjust the scale.
     const numSteps = mag > 0 ? -1 : 1;
     const camera = this.nav().camera();
-    if (numSteps > 0 || camera.scale() >= MIN_CAMERA_SCALE) {
-      if (this.focusedNode()) {
-        camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
+      if (numSteps > 0 || camera.scale() > this.nav().minCameraScale()) {
+        if (this.focusedNode()) {
+          camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
+        } else {
+          this.nav().showInCamera(null);
+          camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
+          /* camera.zoomToPoint(
+            Math.pow(1.1, numSteps),
+            this.nav().width() / 2,
+            this.nav().height() / 2
+          );*/
+        }
+        camera.setScale(Math.max(camera.scale(), this.nav().minCameraScale()));
       } else {
-        this.nav().showInCamera(null);
-        camera.zoomToPoint(Math.pow(1.1, numSteps), x, y);
-        /* camera.zoomToPoint(
-          Math.pow(1.1, numSteps),
-          this.nav().width() / 2,
-          this.nav().height() / 2
-        );*/
+        this.nav().minZoom(mag);
       }
-    }
     this.mouseChanged();
     this.scheduleRepaint();
     return true;

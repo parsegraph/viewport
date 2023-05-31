@@ -13,6 +13,7 @@ import NavportWebOverlay from "./NavportWebOverlay";
 import log, { logc } from "parsegraph-log";
 import { Layout } from "parsegraph-layout";
 import { showNodeInCamera } from "parsegraph-showincamera";
+import { Direction } from "parsegraph-direction";
 
 export const FOCUS_SCALE = 2;
 
@@ -271,6 +272,15 @@ export default class Navport implements Projected {
     return this._input.focusedNode();
   }
 
+  minCameraScale() {
+    const root = this.root();
+    const size = root.value().getLayout().extentSize();
+
+    const mmin = Math.max(size.width(), size.height());
+    const vmin = Math.max(this.width(), this.height());
+    return Math.max(MIN_CAMERA_SCALE, vmin / mmin);
+  }
+
   showInCamera(node: PaintedNode) {
     if (this.focusedNode() === node) {
       return;
@@ -420,5 +430,19 @@ export default class Navport implements Projected {
       needsUpdate ? "Render needs more time" : "Render complete"
     );
     return needsUpdate;
+  }
+
+  minZoom(delta: number = 1) {
+    const cam = this.camera();
+    const root = this.root();
+    cam.setScale(this.minCameraScale());
+    const layout = root.value().getLayout();
+    const size = root.value().getLayout().extentSize();
+    const fx = layout.absoluteX() + layout.extentsAt(Direction.BACKWARD).boundingValues()[2] * layout.absoluteScale();
+    const fy = layout.absoluteY() + layout.extentsAt(Direction.UPWARD).boundingValues()[2] * layout.absoluteScale();
+    cam.adjustOrigin(
+      (fx - cam.x())/10,
+      (fy - cam.y())/10
+    );
   }
 }

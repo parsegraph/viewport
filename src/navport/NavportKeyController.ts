@@ -349,12 +349,15 @@ export default class NavportKeyController implements KeyController {
     if (this.getKey(ZOOM_IN_KEY)) {
       // console.log("Continuing to zoom in");
       needsUpdate = true;
-      if (cam.scale() >= MIN_CAMERA_SCALE) {
+      if (cam.scale() > this.nav().minCameraScale()) {
         cam.zoomToPoint(
           Math.pow(1.1, -scaleSpeed * this.keyElapsed(ZOOM_IN_KEY, t)),
           cam.width() / 2,
           cam.height() / 2
         );
+        cam.setScale(Math.max(cam.scale(), this.nav().minCameraScale()));
+      } else {
+        this.nav().minZoom(-scaleSpeed*this.keyElapsed(ZOOM_IN_KEY, t));
       }
     }
 
